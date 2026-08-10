@@ -282,6 +282,7 @@ local CHAT_EVENT_TO_CHANNEL = _G.KeyMasterNS and _G.KeyMasterNS.CHAT_EVENT_TO_CH
 
 local MAX_DEFERRED_CHAT_MESSAGES = _G.KeyMasterNS and _G.KeyMasterNS.MAX_DEFERRED_CHAT_MESSAGES or 10
 local RequestGuildKeysFromAllSources
+local RegisterLibOpenRaidCallbacks
 local MergeNormalizedNameStore
 local TrimStoreByEntryLimit
 local MAX_GUILD_MEMBER_ENTRIES = 800
@@ -1948,8 +1949,12 @@ local function QueueExternalSyncRetry(delaySeconds, remainingAttempts)
     end
 
     local function Retry()
-        RequestGuildKeysFromAllSources(true, true)
-        RegisterLibOpenRaidCallbacks()
+        if type(RequestGuildKeysFromAllSources) == "function" then
+            RequestGuildKeysFromAllSources(true, true)
+        end
+        if type(RegisterLibOpenRaidCallbacks) == "function" then
+            RegisterLibOpenRaidCallbacks()
+        end
         if attemptsLeft > 1 then
             QueueExternalSyncRetry(delaySeconds, attemptsLeft - 1)
         end
@@ -2031,7 +2036,7 @@ local function HandleAddonMessage(prefix, message, channel, sender)
     end
 end
 
-local function RegisterLibOpenRaidCallbacks()
+RegisterLibOpenRaidCallbacks = function()
     local syncModule = _G.KeyMasterNS and _G.KeyMasterNS.Sync
     if syncModule and syncModule.RegisterLibOpenRaidCallbacks then
         syncModule.RegisterLibOpenRaidCallbacks(BuildSyncContext())

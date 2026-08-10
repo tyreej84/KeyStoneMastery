@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.3] - 2026-08-10
+
+### Changed
+- Updated addon metadata for Retail patch 12.1.0 by setting TOC interface to `120100`.
+- Reviewed current Mythic+, challenge-mode, chat, and addon-message API usage for 12.1.0 readiness.
+
+### Packaging
+- Bumped TOC version to `2.0.3`.
+
+## [2.0.2] - 2026-06-18
+
+### Fixed
+- Guarded the external sync retry timer so `RegisterLibOpenRaidCallbacks` is only called after the local helper has been assigned, preventing the nil-call captured by BugGrabber.
+
+### Packaging
+- Bumped TOC version to `2.0.2`.
+
 ## [2.0.1] - 2026-06-17
 
 ### Changed
