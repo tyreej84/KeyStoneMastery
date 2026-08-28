@@ -3921,23 +3921,29 @@ local function GetCurrentSeasonPortalEntries()
         })
     end
 
+    local loadedCurrentMapTable = false
     if C_ChallengeMode and C_ChallengeMode.GetMapTable then
         local ok, maps = pcall(C_ChallengeMode.GetMapTable)
         if ok and type(maps) == "table" then
+            loadedCurrentMapTable = #maps > 0
             for _, mapID in ipairs(maps) do
                 AddPortalEntry(mapID)
             end
         end
     end
 
-    -- Fallback: always include configured season portals even if map table is unavailable.
-    local factionGroup = UnitFactionGroup and UnitFactionGroup("player") or nil
-    for mapID in pairs(KSM_PORTAL_SPELL_IDS) do
-        AddPortalEntry(mapID)
-    end
-    if factionGroup == "Horde" then
-        for mapID in pairs(KSM_PORTAL_SPELL_IDS_HORDE) do
+    -- Only use the configured pool when Blizzard's current-season table is unavailable.
+    -- Merging both sources lets stale configuration from an earlier season displace
+    -- current dungeons when the dashboard limits the row to eight tiles.
+    if not loadedCurrentMapTable then
+        local factionGroup = UnitFactionGroup and UnitFactionGroup("player") or nil
+        for mapID in pairs(KSM_PORTAL_SPELL_IDS) do
             AddPortalEntry(mapID)
+        end
+        if factionGroup == "Horde" then
+            for mapID in pairs(KSM_PORTAL_SPELL_IDS_HORDE) do
+                AddPortalEntry(mapID)
+            end
         end
     end
 
@@ -5600,7 +5606,6 @@ frame:SetScript("OnEvent", function(_, event, ...)
     if event == "ADDON_LOADED" then
         local loadedAddon = ...
         if loadedAddon == addonName then
-            RegisterRuntimeEventsOnce()
             InitializeDatabase()
             if IsLoggedIn and IsLoggedIn() then
                 PerformLoginInitialization()
@@ -5612,17 +5617,11 @@ frame:SetScript("OnEvent", function(_, event, ...)
     end
 
     if event == "PLAYER_LOGIN" then
-        if not runtimeState.runtimeEventsRegistered then
-            RegisterRuntimeEventsOnce()
-        end
         PerformLoginInitialization()
         return
     end
 
     if event == "CHALLENGE_MODE_START" then
-        if not runtimeState.runtimeEventsRegistered then
-            RegisterRuntimeEventsOnce()
-        end
         TryHookScenarioTimerUpdate()
         PersistOwnGuildSnapshot()
         QueueOwnSnapshotPersistRetry(2, 8)
@@ -5759,6 +5758,8 @@ end)
 -- Register bootstrap and runtime events directly after the event handler is
 -- set. ScheduleBootstrapRegistration uses C_Timer.After, so bootstrap events
 -- must be registered here to avoid missing ADDON_LOADED/PLAYER_LOGIN.
--- Runtime events are registered by those handlers.
+-- Runtime registration must also happen in the initial addon-loading execution
+-- context. RegisterEvent can become protected once ADDON_LOADED begins dispatching.
 RegisterBootstrapEvents()
+RegisterRuntimeEventsOnce()
 

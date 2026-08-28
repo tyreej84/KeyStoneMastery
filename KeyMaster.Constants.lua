@@ -8,14 +8,14 @@ ns.REPLY_PREFIX = "KSM:"
 ns.KEYSTONE_ITEM_IDS = { [180653] = true, [158923] = true, [151086] = true }
 ns.KEYSTONE_BAG_SLOTS = { Enum.BagIndex.Backpack, Enum.BagIndex.Bag_1, Enum.BagIndex.Bag_2, Enum.BagIndex.Bag_3, Enum.BagIndex.Bag_4 }
 ns.KSM_PORTAL_SPELL_IDS = {
-    [402] = 393273, -- Algeth'ar Academy
-    [239] = 1254551, -- Seat of the Triumvirate
-    [556] = 1254555, -- Pit of Saron
-    [557] = 1254400, -- Windrunner Spire
-    [558] = 1254572, -- Magisters' Terrace
-    [559] = 1254563, -- Nexus-Point Xenas
-    [560] = 1254559, -- Maisara Caverns
-    [161] = 159898, -- Skyreach
+    [249] = 1286831, -- King's Rest
+    [250] = 1286828, -- Temple of Sethraliss
+    [399] = 393256, -- Ruby Life Pools
+    [584] = 1286801, -- The Blinding Vale
+    [585] = 1286804, -- Voidscar Arena
+    [586] = 1286807, -- Den of Nalorakk
+    [587] = 1286809, -- Murder Row
+    [588] = 1286812, -- Altar of Fangs
 }
 -- No Horde-specific portal overrides for the current season (Season 2 Midnight).
 -- Populate this table when a future season includes a dungeon with distinct Horde/Alliance portal spells.

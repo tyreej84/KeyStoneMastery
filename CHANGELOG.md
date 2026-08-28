@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.4] - 2026-08-28
+
+### Fixed
+- Updated the `/ksm` Season Portals row to the eight Midnight Season 2 dungeons and their correct teleport spells.
+- Prevented stale configured portals from being merged into Blizzard's current-season dungeon list and displacing valid tiles.
+- Registered runtime events during the addon's initial loading context instead of from `ADDON_LOADED`, preventing the protected `Frame:RegisterEvent()` calls captured by BugGrabber.
+
+### Packaging
+- Bumped TOC version to `2.0.4`.
+
 ## [2.0.3] - 2026-08-10
 
 ### Changed

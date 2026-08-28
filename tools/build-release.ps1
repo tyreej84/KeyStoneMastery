@@ -40,6 +40,9 @@ if (Test-Path $zip) {
 }
 Compress-Archive -Path $pkg -DestinationPath $zip -CompressionLevel Optimal -Force
 
+$copyToShelf = Join-Path (Split-Path -Parent $repo) "tools\copy-release-to-shelf.ps1"
+& $copyToShelf -AddonName "KeyMaster" -Version $Version -ZipPath $zip
+
 $z = Get-Item $zip
 Write-Output ("ZIP_OK " + $z.FullName)
 Write-Output ("ZIP_SIZE_BYTES " + $z.Length)
