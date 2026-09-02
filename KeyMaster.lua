@@ -54,6 +54,7 @@ local runtimeState = {
     bootstrapEventsRegistered = false,
     bootstrapRetryScheduled = false,
 }
+local BroadcastOwnGuildSnapshot
 local MANUAL_EXPANSION_MAX_LEVEL = 90
 local WEEKLY_RESET_WEEKDAY_UTC = 3 -- Tuesday
 local WEEKLY_RESET_HOUR_UTC = 16 -- 11:00 EST (UTC-5)
@@ -67,12 +68,11 @@ local function SafeRegisterFrameEvent(eventName)
         return true
     end
 
-    -- Keep registration path simple and unwrapped; securecall wrappers around
-    -- RegisterEvent have shown protected-call faults in tainted sessions.
-    local ok = pcall(function()
-        frame:RegisterEvent(eventName)
-    end)
-    return ok and frame:IsEventRegistered(eventName)
+    -- Event registration is only invoked from the addon's initial loading
+    -- execution path. Keep it direct: wrapping RegisterEvent in pcall gives the
+    -- closure an insecure call path and can trigger ADDON_ACTION_FORBIDDEN.
+    frame:RegisterEvent(eventName)
+    return frame:IsEventRegistered(eventName)
 end
 
 local function RegisterRuntimeEventsOnce()
@@ -1972,7 +1972,7 @@ local function QueueExternalSyncRetry(delaySeconds, remainingAttempts)
     end
 end
 
-local function BroadcastOwnGuildSnapshot()
+BroadcastOwnGuildSnapshot = function()
     PersistOwnGuildSnapshot()
 
     if not (C_ChatInfo and C_ChatInfo.SendAddonMessage) then
@@ -3099,17 +3099,17 @@ local function RegisterSettingsPanel()
 
     local title = panel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
     title:SetPoint("TOPLEFT", 16, -16)
-    title:SetText("KeyMaster")
+    title:SetText("KeyStoneMastery")
 
     local subtitle = panel:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
     subtitle:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -8)
     subtitle:SetWidth(560)
     subtitle:SetJustifyH("LEFT")
-    subtitle:SetText("Choose whether KeyMaster uses its custom Mythic+ overlay or leaves Blizzard's default Mythic+ UI visible.")
+    subtitle:SetText("Choose whether KeyStoneMastery uses its custom Mythic+ overlay or leaves Blizzard's default Mythic+ UI visible.")
 
     local checkbox = CreateFrame("CheckButton", nil, panel, "InterfaceOptionsCheckButtonTemplate")
     checkbox:SetPoint("TOPLEFT", subtitle, "BOTTOMLEFT", -2, -16)
-    checkbox.Text:SetText("Use KeyMaster Mythic+ UI")
+    checkbox.Text:SetText("Use KeyStoneMastery Mythic+ UI")
     checkbox.Text:SetWidth(260)
     checkbox:SetChecked(IsMythicUIEnabled())
     checkbox:SetScript("OnClick", function(self)
@@ -3120,7 +3120,7 @@ local function RegisterSettingsPanel()
     description:SetPoint("TOPLEFT", checkbox, "BOTTOMLEFT", 6, -6)
     description:SetWidth(560)
     description:SetJustifyH("LEFT")
-    description:SetText("Disabled: KeyMaster keeps chat replies while Blizzard's default Mythic+ UI remains active. Automatic keystone slotting is active when this setting is enabled.")
+    description:SetText("Disabled: KeyStoneMastery keeps chat replies while Blizzard's default Mythic+ UI remains active. Automatic keystone slotting is active when this setting is enabled.")
 
     local trackerCheckbox = CreateFrame("CheckButton", nil, panel, "InterfaceOptionsCheckButtonTemplate")
     trackerCheckbox:SetPoint("TOPLEFT", description, "BOTTOMLEFT", -2, -12)
@@ -3163,7 +3163,7 @@ local function RegisterSettingsPanel()
         lockButton:SetEnabled(IsMythicUIEnabled())
     end)
 
-    local category = Settings.RegisterCanvasLayoutCategory(panel, "KeyMaster")
+    local category = Settings.RegisterCanvasLayoutCategory(panel, "KeyStoneMastery")
     Settings.RegisterAddOnCategory(category)
 
     ui.settingsPanel = panel
@@ -5504,19 +5504,19 @@ SlashCmdList.KEYMASTER = function(message)
 
     if command == "ui on" then
         SetMythicUIEnabled(true)
-        PrintLocal("KeyMaster Mythic+ UI enabled")
+        PrintLocal("KeyStoneMastery Mythic+ UI enabled")
         return
     end
 
     if command == "ui off" then
         SetMythicUIEnabled(false)
-        PrintLocal("KeyMaster Mythic+ UI disabled; Blizzard UI restored")
+        PrintLocal("KeyStoneMastery Mythic+ UI disabled; Blizzard UI restored")
         return
     end
 
     if command == "ui restore" then
         RestoreUIStateToVisibleDefaults()
-        PrintLocal("KeyMaster Mythic+ UI restored and reset to the default top-right location")
+        PrintLocal("KeyStoneMastery Mythic+ UI restored and reset to the default top-right location")
         return
     end
 

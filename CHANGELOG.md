@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.5] - 2026-09-02
+
+### Fixed
+- Registered startup events through a direct call path to avoid protected-call failures.
+- Forward-declared the guild snapshot broadcaster so retry callbacks always resolve the local function.
+
+### Changed
+- Standardized all current user-facing addon branding as **KeyStoneMastery** while retaining legacy internal identifiers for compatibility.
+
+### Packaging
+- Bumped TOC version to `2.0.5`.
+
 ## [2.0.4] - 2026-08-28
 
 ### Fixed

@@ -357,7 +357,7 @@ end)
 4. **Guild Only** - Non-guild members cannot share data unless using friend sync
 5. **Chat-Based Fallback** - Resorts to party/guild chat announcements when addon messages fail
 
-### Recommended for KeyMaster:
+### Recommended for KeyStoneMastery:
 - Use **same message format** for compatibility with AstralKeys data
 - Implement **guild channel syncing** as primary method
 - Add **optional BattleTag friend sync** for cross-realm parties

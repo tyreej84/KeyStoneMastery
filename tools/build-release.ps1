@@ -1,5 +1,5 @@
 param(
-    [string]$Version = "1.7.0"
+    [string]$Version = "2.0.5"
 )
 
 $ErrorActionPreference = "Stop"
@@ -7,7 +7,7 @@ $ErrorActionPreference = "Stop"
 $repo = Split-Path -Parent $PSScriptRoot
 $releaseRoot = Join-Path $repo ("Releases\" + $Version)
 $pkg = Join-Path $releaseRoot "KeyMaster"
-$zip = Join-Path $releaseRoot "KeyMaster.zip"
+$zip = Join-Path $releaseRoot ("KeyStoneMastery-" + $Version + ".zip")
 
 if (Test-Path $pkg) {
     Remove-Item $pkg -Recurse -Force
@@ -41,7 +41,7 @@ if (Test-Path $zip) {
 Compress-Archive -Path $pkg -DestinationPath $zip -CompressionLevel Optimal -Force
 
 $copyToShelf = Join-Path (Split-Path -Parent $repo) "tools\copy-release-to-shelf.ps1"
-& $copyToShelf -AddonName "KeyMaster" -Version $Version -ZipPath $zip
+& $copyToShelf -AddonName "KeyStoneMastery" -Version $Version -ZipPath $zip
 
 $z = Get-Item $zip
 Write-Output ("ZIP_OK " + $z.FullName)
