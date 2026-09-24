@@ -1,7 +1,7 @@
-local ns = _G.KeyMasterNS
+local ns = _G.KeyStoneMasteryNS
 if type(ns) ~= "table" then
     ns = {}
-    _G.KeyMasterNS = ns
+    _G.KeyStoneMasteryNS = ns
 end
 
 local KSM = {}
@@ -33,7 +33,7 @@ local function ResolveBestKnownScore(tryScoreFn, ...)
     return nil
 end
 
-local ksmNameContextMenu = CreateFrame("Frame", "KeyMasterKSMNameContextMenu", UIParent, "UIDropDownMenuTemplate")
+local ksmNameContextMenu = CreateFrame("Frame", "KeyStoneMasteryKSMNameContextMenu", UIParent, "UIDropDownMenuTemplate")
 
 local function ShowNameContextMenu(menuItems)
     if type(menuItems) ~= "table" or #menuItems == 0 then

@@ -1,7 +1,7 @@
-local ns = _G.KeyMasterNS
+local ns = _G.KeyStoneMasteryNS
 if type(ns) ~= "table" then
     ns = {}
-    _G.KeyMasterNS = ns
+    _G.KeyStoneMasteryNS = ns
 end
 
 ns.REPLY_PREFIX = "KSM:"
@@ -25,7 +25,7 @@ ns.KEY_TEXT_COMMAND = "!key"
 ns.SCORE_TEXT_COMMAND = "!score"
 ns.SCORES_TEXT_COMMAND = "!scores"
 ns.BEST_TEXT_COMMAND = "!best"
-ns.KSM_ADDON_PREFIX = "KeyMaster"
+ns.KSM_ADDON_PREFIX = "KeyStoneMastery"
 ns.KSM_GUILD_SYNC_VERSION = "g1"
 ns.KSM_GUILD_SYNC_REQUEST = "req1"
 ns.ASTRAL_KEYS_PREFIX = "AstralKeys"
@@ -51,8 +51,8 @@ ns.CLASS_ID_TO_FILE = {
     [12] = "DEMONHUNTER",
     [13] = "EVOKER",
 }
-ns.KSM_VAULT_TEXTURE_EMPTY = "Interface\\AddOns\\KeyMaster\\Assets\\UI\\Vault.png"
-ns.KSM_VAULT_TEXTURE_GLOWY = "Interface\\AddOns\\KeyMaster\\Assets\\UI\\Vault_Glowy.png"
+ns.KSM_VAULT_TEXTURE_EMPTY = "Interface\\AddOns\\KeyStoneMastery\\Assets\\UI\\Vault.png"
+ns.KSM_VAULT_TEXTURE_GLOWY = "Interface\\AddOns\\KeyStoneMastery\\Assets\\UI\\Vault_Glowy.png"
 ns.REQUEST_COMMAND_SET = {
     ["!key"] = true,
     ["!keys"] = true,
@@ -103,21 +103,21 @@ ns.DEFAULT_DB = {
 }
 
 -- Early fallback slash bindings: if later addon files error, users still get a KeyStoneMastery response.
-local function KeyMasterEarlySlashFallback(command)
+local function KeyStoneMasteryEarlySlashFallback(command)
     if DEFAULT_CHAT_FRAME and DEFAULT_CHAT_FRAME.AddMessage then
         DEFAULT_CHAT_FRAME:AddMessage("|cff00ff98KSM:|r core did not fully initialize. Check Lua errors, then /reload.")
     end
 end
 
 if type(SlashCmdList) == "table" then
-    if type(SlashCmdList.KEYMASTER) ~= "function" then
-        SLASH_KEYMASTER1 = "/keymaster"
-        SLASH_KEYMASTER2 = "/km"
-        SlashCmdList.KEYMASTER = KeyMasterEarlySlashFallback
+    if type(SlashCmdList.KEYSTONEMASTERY) ~= "function" then
+        SLASH_KEYSTONEMASTERY1 = "/keystonemastery"
+        SLASH_KEYSTONEMASTERY2 = "/km"
+        SlashCmdList.KEYSTONEMASTERY = KeyStoneMasteryEarlySlashFallback
     end
 
-    if type(SlashCmdList.KEYSTONEMASTER) ~= "function" then
-        SLASH_KEYSTONEMASTER1 = "/ksm"
-        SlashCmdList.KEYSTONEMASTER = KeyMasterEarlySlashFallback
+    if type(SlashCmdList.KEYSTONEMASTERYDASHBOARD) ~= "function" then
+        SLASH_KEYSTONEMASTERYDASHBOARD1 = "/ksm"
+        SlashCmdList.KEYSTONEMASTERYDASHBOARD = KeyStoneMasteryEarlySlashFallback
     end
 end

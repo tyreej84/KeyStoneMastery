@@ -1,7 +1,7 @@
-local ns = _G.KeyMasterNS
+local ns = _G.KeyStoneMasteryNS
 if type(ns) ~= "table" then
     ns = {}
-    _G.KeyMasterNS = ns
+    _G.KeyStoneMasteryNS = ns
 end
 
 local Sync = {}
@@ -408,7 +408,7 @@ function Sync.RequestGuildKeysFromAllSources(ctx, force, includeExternal)
     return true
 end
 
-local function HandleKeyMasterAddonMessage(ctx, message, sender)
+local function HandleKeyStoneMasteryAddonMessage(ctx, message, sender)
     if type(message) ~= "string" or type(sender) ~= "string" then
         return
     end
@@ -553,7 +553,7 @@ function Sync.HandleAddonMessage(ctx, prefix, message, channel, sender)
     local isGroupChannel = channel == "PARTY" or channel == "RAID" or channel == "INSTANCE_CHAT"
 
     if prefix == ctx.KSM_ADDON_PREFIX and (isGuildChannel or isGroupChannel) then
-        HandleKeyMasterAddonMessage(ctx, message, sender)
+        HandleKeyStoneMasteryAddonMessage(ctx, message, sender)
         ctx.RefreshKSMWindowIfVisible()
         return
     end

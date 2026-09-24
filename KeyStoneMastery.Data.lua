@@ -1,7 +1,7 @@
-local ns = _G.KeyMasterNS
+local ns = _G.KeyStoneMasteryNS
 if type(ns) ~= "table" then
     ns = {}
-    _G.KeyMasterNS = ns
+    _G.KeyStoneMasteryNS = ns
 end
 
 ns.ENEMY_FORCES_TOTAL_UNITS_BY_MAP_ID = {

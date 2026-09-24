@@ -4,7 +4,7 @@ This checklist is for launch-day validation after the Retail 12.0.5 patch goes l
 
 ## Metadata
 
-- Confirm [KeyMaster.toc](KeyMaster.toc) has `## Interface: 120005`.
+- Confirm [KeyStoneMastery.toc](KeyStoneMastery.toc) has `## Interface: 120005`.
 - Log in and verify the addon loads without an out-of-date warning.
 
 ## Keystone Data APIs
@@ -41,7 +41,7 @@ This checklist is for launch-day validation after the Retail 12.0.5 patch goes l
 ## Post-Validation
 
 - If all checks pass, tag the next release as Retail 12.0.5 validated.
-- If an API behavior changed, patch wrapper/fallback functions first in [KeyMaster.lua](KeyMaster.lua) and [KeyMaster.Sync.lua](KeyMaster.Sync.lua).
+- If an API behavior changed, patch wrapper/fallback functions first in [KeyStoneMastery.lua](KeyStoneMastery.lua) and [KeyStoneMastery.Sync.lua](KeyStoneMastery.Sync.lua).
 
 ## Validation Status
 

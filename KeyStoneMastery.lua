@@ -1,5 +1,5 @@
 local addonName = ...
-local KMNS = _G.KeyMasterNS or {}
+local KSMNS = _G.KeyStoneMasteryNS or {}
 local SendChatMessage = SendChatMessage
 
 local strtrim = strtrim or function(s) return (s:gsub("^%s*(.-)%s*$", "%1")) end
@@ -184,21 +184,21 @@ local function ApplyWeeklyKeyResetIfNeeded(db)
     return true
 end
 
-local REPLY_PREFIX = _G.KeyMasterNS and _G.KeyMasterNS.REPLY_PREFIX or "KSM:"
-local KEYSTONE_ITEM_IDS = _G.KeyMasterNS and _G.KeyMasterNS.KEYSTONE_ITEM_IDS or { [180653] = true, [158923] = true, [151086] = true }
-local KEYSTONE_BAG_SLOTS = _G.KeyMasterNS and _G.KeyMasterNS.KEYSTONE_BAG_SLOTS or { Enum.BagIndex.Backpack, Enum.BagIndex.Bag_1, Enum.BagIndex.Bag_2, Enum.BagIndex.Bag_3, Enum.BagIndex.Bag_4 }
-local KSM_PORTAL_SPELL_IDS = _G.KeyMasterNS and _G.KeyMasterNS.KSM_PORTAL_SPELL_IDS or {}
-local KSM_PORTAL_SPELL_IDS_HORDE = _G.KeyMasterNS and _G.KeyMasterNS.KSM_PORTAL_SPELL_IDS_HORDE or {}
-local KSM_ADDON_PREFIX = _G.KeyMasterNS and _G.KeyMasterNS.KSM_ADDON_PREFIX or "KeyMaster"
-local KSM_GUILD_SYNC_VERSION = _G.KeyMasterNS and _G.KeyMasterNS.KSM_GUILD_SYNC_VERSION or "g1"
-local KSM_GUILD_SYNC_REQUEST = _G.KeyMasterNS and _G.KeyMasterNS.KSM_GUILD_SYNC_REQUEST or "req1"
-local ASTRAL_KEYS_PREFIX = _G.KeyMasterNS and _G.KeyMasterNS.ASTRAL_KEYS_PREFIX or "AstralKeys"
-local DETAILS_OPENRAID_PREFIX = _G.KeyMasterNS and _G.KeyMasterNS.DETAILS_OPENRAID_PREFIX or "LRS"
-local DETAILS_OPENRAID_KEYSTONE_REQUEST_PREFIX = _G.KeyMasterNS and _G.KeyMasterNS.DETAILS_OPENRAID_KEYSTONE_REQUEST_PREFIX or "J"
-local DETAILS_OPENRAID_KEYSTONE_DATA_PREFIX = _G.KeyMasterNS and _G.KeyMasterNS.DETAILS_OPENRAID_KEYSTONE_DATA_PREFIX or "K"
-local CLASS_ID_TO_FILE = _G.KeyMasterNS and _G.KeyMasterNS.CLASS_ID_TO_FILE or {}
-local BREAK_TIMER_BLUE = _G.KeyMasterNS and _G.KeyMasterNS.BREAK_TIMER_BLUE or { 0.15, 0.55, 1.00, 0.90 }
-local DEFAULT_DB = _G.KeyMasterNS and _G.KeyMasterNS.DEFAULT_DB or {
+local REPLY_PREFIX = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.REPLY_PREFIX or "KSM:"
+local KEYSTONE_ITEM_IDS = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.KEYSTONE_ITEM_IDS or { [180653] = true, [158923] = true, [151086] = true }
+local KEYSTONE_BAG_SLOTS = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.KEYSTONE_BAG_SLOTS or { Enum.BagIndex.Backpack, Enum.BagIndex.Bag_1, Enum.BagIndex.Bag_2, Enum.BagIndex.Bag_3, Enum.BagIndex.Bag_4 }
+local KSM_PORTAL_SPELL_IDS = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.KSM_PORTAL_SPELL_IDS or {}
+local KSM_PORTAL_SPELL_IDS_HORDE = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.KSM_PORTAL_SPELL_IDS_HORDE or {}
+local KSM_ADDON_PREFIX = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.KSM_ADDON_PREFIX or "KeyStoneMastery"
+local KSM_GUILD_SYNC_VERSION = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.KSM_GUILD_SYNC_VERSION or "g1"
+local KSM_GUILD_SYNC_REQUEST = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.KSM_GUILD_SYNC_REQUEST or "req1"
+local ASTRAL_KEYS_PREFIX = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.ASTRAL_KEYS_PREFIX or "AstralKeys"
+local DETAILS_OPENRAID_PREFIX = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.DETAILS_OPENRAID_PREFIX or "LRS"
+local DETAILS_OPENRAID_KEYSTONE_REQUEST_PREFIX = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.DETAILS_OPENRAID_KEYSTONE_REQUEST_PREFIX or "J"
+local DETAILS_OPENRAID_KEYSTONE_DATA_PREFIX = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.DETAILS_OPENRAID_KEYSTONE_DATA_PREFIX or "K"
+local CLASS_ID_TO_FILE = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.CLASS_ID_TO_FILE or {}
+local BREAK_TIMER_BLUE = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.BREAK_TIMER_BLUE or { 0.15, 0.55, 1.00, 0.90 }
+local DEFAULT_DB = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.DEFAULT_DB or {
     ui = {
         enabled = true,
         hideTrackerInMythicPlus = true,
@@ -272,15 +272,15 @@ local ui = {
     ksmActiveTab = "main",
 }
 
-local ENEMY_FORCES_TOTAL_UNITS_BY_MAP_ID = _G.KeyMasterNS and _G.KeyMasterNS.ENEMY_FORCES_TOTAL_UNITS_BY_MAP_ID or {}
+local ENEMY_FORCES_TOTAL_UNITS_BY_MAP_ID = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.ENEMY_FORCES_TOTAL_UNITS_BY_MAP_ID or {}
 
-local ENEMY_FORCES_TOTAL_UNITS_BY_DUNGEON = _G.KeyMasterNS and _G.KeyMasterNS.ENEMY_FORCES_TOTAL_UNITS_BY_DUNGEON or {}
+local ENEMY_FORCES_TOTAL_UNITS_BY_DUNGEON = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.ENEMY_FORCES_TOTAL_UNITS_BY_DUNGEON or {}
 
-local CHAT_EVENTS = _G.KeyMasterNS and _G.KeyMasterNS.CHAT_EVENTS or {}
+local CHAT_EVENTS = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.CHAT_EVENTS or {}
 
-local CHAT_EVENT_TO_CHANNEL = _G.KeyMasterNS and _G.KeyMasterNS.CHAT_EVENT_TO_CHANNEL or {}
+local CHAT_EVENT_TO_CHANNEL = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.CHAT_EVENT_TO_CHANNEL or {}
 
-local MAX_DEFERRED_CHAT_MESSAGES = _G.KeyMasterNS and _G.KeyMasterNS.MAX_DEFERRED_CHAT_MESSAGES or 10
+local MAX_DEFERRED_CHAT_MESSAGES = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.MAX_DEFERRED_CHAT_MESSAGES or 10
 local RequestGuildKeysFromAllSources
 local RegisterLibOpenRaidCallbacks
 local MergeNormalizedNameStore
@@ -763,77 +763,77 @@ local function CopyDefaults(source, destination)
 end
 
 local function InitializeDatabase()
-    if type(KeyMasterDB) ~= "table" then
-        KeyMasterDB = {}
+    if type(KeyStoneMasteryDB) ~= "table" then
+        KeyStoneMasteryDB = {}
     end
 
-    KeyMasterDB = CopyDefaults(DEFAULT_DB, KeyMasterDB)
+    KeyStoneMasteryDB = CopyDefaults(DEFAULT_DB, KeyStoneMasteryDB)
 
-    if type(KeyMasterDB.ui) ~= "table" then
-        KeyMasterDB.ui = CopyDefaults(DEFAULT_DB.ui, {})
+    if type(KeyStoneMasteryDB.ui) ~= "table" then
+        KeyStoneMasteryDB.ui = CopyDefaults(DEFAULT_DB.ui, {})
     end
 
-    if type(KeyMasterDB.ui.point) ~= "table" or #KeyMasterDB.ui.point < 5 then
-        KeyMasterDB.ui.point = CopyDefaults(DEFAULT_DB.ui.point, {})
+    if type(KeyStoneMasteryDB.ui.point) ~= "table" or #KeyStoneMasteryDB.ui.point < 5 then
+        KeyStoneMasteryDB.ui.point = CopyDefaults(DEFAULT_DB.ui.point, {})
     end
 
-    if type(KeyMasterDB.ui.scale) ~= "number" or KeyMasterDB.ui.scale <= 0 then
-        KeyMasterDB.ui.scale = DEFAULT_DB.ui.scale
+    if type(KeyStoneMasteryDB.ui.scale) ~= "number" or KeyStoneMasteryDB.ui.scale <= 0 then
+        KeyStoneMasteryDB.ui.scale = DEFAULT_DB.ui.scale
     end
 
-    if type(KeyMasterDB.ui.enabled) ~= "boolean" then
-        KeyMasterDB.ui.enabled = DEFAULT_DB.ui.enabled
+    if type(KeyStoneMasteryDB.ui.enabled) ~= "boolean" then
+        KeyStoneMasteryDB.ui.enabled = DEFAULT_DB.ui.enabled
     end
 
     -- The M+ overlay is always enabled by default; reset if previously turned off
-    if KeyMasterDB.ui.enabled == false then
-        KeyMasterDB.ui.enabled = true
+    if KeyStoneMasteryDB.ui.enabled == false then
+        KeyStoneMasteryDB.ui.enabled = true
     end
 
-    if type(KeyMasterDB.ui.hideTrackerInMythicPlus) ~= "boolean" then
-        KeyMasterDB.ui.hideTrackerInMythicPlus = DEFAULT_DB.ui.hideTrackerInMythicPlus
+    if type(KeyStoneMasteryDB.ui.hideTrackerInMythicPlus) ~= "boolean" then
+        KeyStoneMasteryDB.ui.hideTrackerInMythicPlus = DEFAULT_DB.ui.hideTrackerInMythicPlus
     end
 
-    if type(KeyMasterDB.ui.hideOfflineGuild) ~= "boolean" then
-        KeyMasterDB.ui.hideOfflineGuild = DEFAULT_DB.ui.hideOfflineGuild
+    if type(KeyStoneMasteryDB.ui.hideOfflineGuild) ~= "boolean" then
+        KeyStoneMasteryDB.ui.hideOfflineGuild = DEFAULT_DB.ui.hideOfflineGuild
     end
 
-    if type(KeyMasterDB.ui.locked) ~= "boolean" then
-        KeyMasterDB.ui.locked = DEFAULT_DB.ui.locked
+    if type(KeyStoneMasteryDB.ui.locked) ~= "boolean" then
+        KeyStoneMasteryDB.ui.locked = DEFAULT_DB.ui.locked
     end
 
-    if type(KeyMasterDB.ui.hidden) ~= "boolean" then
-        KeyMasterDB.ui.hidden = DEFAULT_DB.ui.hidden
+    if type(KeyStoneMasteryDB.ui.hidden) ~= "boolean" then
+        KeyStoneMasteryDB.ui.hidden = DEFAULT_DB.ui.hidden
     end
 
-    if type(KeyMasterDB.guild) ~= "table" then
-        KeyMasterDB.guild = CopyDefaults(DEFAULT_DB.guild, {})
+    if type(KeyStoneMasteryDB.guild) ~= "table" then
+        KeyStoneMasteryDB.guild = CopyDefaults(DEFAULT_DB.guild, {})
     end
 
-    if type(KeyMasterDB.guild.members) ~= "table" then
-        KeyMasterDB.guild.members = {}
+    if type(KeyStoneMasteryDB.guild.members) ~= "table" then
+        KeyStoneMasteryDB.guild.members = {}
     end
 
-    if type(KeyMasterDB.characters) ~= "table" then
-        KeyMasterDB.characters = {}
+    if type(KeyStoneMasteryDB.characters) ~= "table" then
+        KeyStoneMasteryDB.characters = {}
     end
 
-    ApplyWeeklyKeyResetIfNeeded(KeyMasterDB)
+    ApplyWeeklyKeyResetIfNeeded(KeyStoneMasteryDB)
 
     if not runtimeState.databaseSanitized and type(MergeNormalizedNameStore) == "function" then
-        KeyMasterDB.guild.members = MergeNormalizedNameStore(KeyMasterDB.guild.members)
-        KeyMasterDB.characters = MergeNormalizedNameStore(KeyMasterDB.characters)
-        TrimStoreByEntryLimit(KeyMasterDB.guild.members, MAX_GUILD_MEMBER_ENTRIES)
-        TrimStoreByEntryLimit(KeyMasterDB.characters, MAX_CHARACTER_ENTRIES)
+        KeyStoneMasteryDB.guild.members = MergeNormalizedNameStore(KeyStoneMasteryDB.guild.members)
+        KeyStoneMasteryDB.characters = MergeNormalizedNameStore(KeyStoneMasteryDB.characters)
+        TrimStoreByEntryLimit(KeyStoneMasteryDB.guild.members, MAX_GUILD_MEMBER_ENTRIES)
+        TrimStoreByEntryLimit(KeyStoneMasteryDB.characters, MAX_CHARACTER_ENTRIES)
         runtimeState.databaseSanitized = true
     end
 
     -- Legacy cleanup: debugLog should not persist in SavedVariables.
-    if KeyMasterDB.debugLog ~= nil then
-        KeyMasterDB.debugLog = nil
+    if KeyStoneMasteryDB.debugLog ~= nil then
+        KeyStoneMasteryDB.debugLog = nil
     end
 
-    return KeyMasterDB
+    return KeyStoneMasteryDB
 end
 
 local function GetGuildMemberStore()
@@ -1496,12 +1496,12 @@ local function FindKeystoneBagSlot()
         return nil, nil, nil
     end
 
-    for _, bagID in ipairs((_G.KeyMasterNS and _G.KeyMasterNS.KEYSTONE_BAG_SLOTS) or { Enum.BagIndex.Backpack, Enum.BagIndex.Bag_1, Enum.BagIndex.Bag_2, Enum.BagIndex.Bag_3, Enum.BagIndex.Bag_4 }) do
+    for _, bagID in ipairs((_G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.KEYSTONE_BAG_SLOTS) or { Enum.BagIndex.Backpack, Enum.BagIndex.Bag_1, Enum.BagIndex.Bag_2, Enum.BagIndex.Bag_3, Enum.BagIndex.Bag_4 }) do
         local slotCount = C_Container.GetContainerNumSlots(bagID) or 0
         for slotIndex = 1, slotCount do
             local itemID = C_Container.GetContainerItemID(bagID, slotIndex)
             local bagLink = C_Container.GetContainerItemLink and C_Container.GetContainerItemLink(bagID, slotIndex) or nil
-            if (((_G.KeyMasterNS and _G.KeyMasterNS.KEYSTONE_ITEM_IDS) or { [180653] = true, [158923] = true, [151086] = true })[itemID]) or IsKeystoneLink(bagLink) then
+            if (((_G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.KEYSTONE_ITEM_IDS) or { [180653] = true, [158923] = true, [151086] = true })[itemID]) or IsKeystoneLink(bagLink) then
                 return bagID, slotIndex, bagLink
             end
         end
@@ -1682,7 +1682,7 @@ local function GetOwnedKeystoneSnapshot()
 
     if (type(mapID) ~= "number" or mapID <= 0) or (type(keyLevel) ~= "number" or keyLevel <= 0) then
         local keyLink = GetOwnedKeystoneLink()
-        local parsedMapID, parsedLevel = KMNS.ParseKeystoneFromMessage(keyLink)
+        local parsedMapID, parsedLevel = KSMNS.ParseKeystoneFromMessage(keyLink)
         mapID = (type(mapID) == "number" and mapID > 0) and mapID or parsedMapID
         keyLevel = (type(keyLevel) == "number" and keyLevel > 0) and keyLevel or parsedLevel
     end
@@ -1733,7 +1733,7 @@ end
 
 local function ObserveOwnedKeystone(allowAnnounce)
     local mapID, keyLevel = GetOwnedKeystoneSnapshot()
-    local currentSnapshotKey = KMNS.BuildKeystoneSnapshotKey(mapID, keyLevel)
+    local currentSnapshotKey = KSMNS.BuildKeystoneSnapshotKey(mapID, keyLevel)
 
     if not ui.observedKeystoneSnapshot then
         ui.observedKeystoneSnapshot = currentSnapshotKey
@@ -1773,7 +1773,7 @@ local function BuildActiveSyncChannels()
         table.insert(channels, channel)
     end
 
-    if KMNS.IsPlayerInGuildSafe() then
+    if KSMNS.IsPlayerInGuildSafe() then
         AddChannel("GUILD")
     end
 
@@ -1985,7 +1985,7 @@ BroadcastOwnGuildSnapshot = function()
     end
 
     local payload = BuildOwnGuildSyncMessage()
-    local sendAddonMessageSafe = KMNS and KMNS.SendAddonMessageSafe
+    local sendAddonMessageSafe = KSMNS and KSMNS.SendAddonMessageSafe
     for _, channel in ipairs(channels) do
         if type(sendAddonMessageSafe) == "function" then
             sendAddonMessageSafe(KSM_ADDON_PREFIX, payload, channel)
@@ -2005,7 +2005,7 @@ local function BuildSyncContext()
         DETAILS_OPENRAID_KEYSTONE_REQUEST_PREFIX = DETAILS_OPENRAID_KEYSTONE_REQUEST_PREFIX,
         DETAILS_OPENRAID_KEYSTONE_DATA_PREFIX = DETAILS_OPENRAID_KEYSTONE_DATA_PREFIX,
         CLASS_ID_TO_FILE = CLASS_ID_TO_FILE,
-        IsPlayerInGuildSafe = KMNS.IsPlayerInGuildSafe,
+        IsPlayerInGuildSafe = KSMNS.IsPlayerInGuildSafe,
         GetNormalizedPlayerName = GetNormalizedPlayerName,
         PrintLocal = PrintLocal,
         BroadcastOwnGuildSnapshot = BroadcastOwnGuildSnapshot,
@@ -2015,14 +2015,14 @@ local function BuildSyncContext()
 end
 
 local function RequestGuildSnapshots()
-    local syncModule = _G.KeyMasterNS and _G.KeyMasterNS.Sync
+    local syncModule = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.Sync
     if syncModule and syncModule.RequestGuildSnapshots then
         syncModule.RequestGuildSnapshots(BuildSyncContext())
     end
 end
 
 RequestGuildKeysFromAllSources = function(force, includeExternal)
-    local syncModule = _G.KeyMasterNS and _G.KeyMasterNS.Sync
+    local syncModule = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.Sync
     if syncModule and syncModule.RequestGuildKeysFromAllSources then
         return syncModule.RequestGuildKeysFromAllSources(BuildSyncContext(), force, includeExternal)
     end
@@ -2030,14 +2030,14 @@ RequestGuildKeysFromAllSources = function(force, includeExternal)
 end
 
 local function HandleAddonMessage(prefix, message, channel, sender)
-    local syncModule = _G.KeyMasterNS and _G.KeyMasterNS.Sync
+    local syncModule = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.Sync
     if syncModule and syncModule.HandleAddonMessage then
         syncModule.HandleAddonMessage(BuildSyncContext(), prefix, message, channel, sender)
     end
 end
 
 RegisterLibOpenRaidCallbacks = function()
-    local syncModule = _G.KeyMasterNS and _G.KeyMasterNS.Sync
+    local syncModule = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.Sync
     if syncModule and syncModule.RegisterLibOpenRaidCallbacks then
         syncModule.RegisterLibOpenRaidCallbacks(BuildSyncContext())
     end
@@ -2046,7 +2046,7 @@ end
 local BuildRunStateContext
 
 local function ScheduleOwnedKeystoneObservation(allowAnnounce, delaySeconds)
-    local runStateModule = _G.KeyMasterNS and _G.KeyMasterNS.RunState
+    local runStateModule = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.RunState
     if runStateModule and runStateModule.ScheduleOwnedKeystoneObservation then
         runStateModule.ScheduleOwnedKeystoneObservation(BuildRunStateContext(), allowAnnounce, delaySeconds)
     else
@@ -2369,11 +2369,11 @@ end
 local function BuildChatContext()
     return {
         REPLY_PREFIX = REPLY_PREFIX,
-        KEY_TEXT_COMMAND = _G.KeyMasterNS and _G.KeyMasterNS.KEY_TEXT_COMMAND or "!key",
-        KEYS_TEXT_COMMAND = _G.KeyMasterNS and _G.KeyMasterNS.KEYS_TEXT_COMMAND or "!keys",
-        SCORE_TEXT_COMMAND = _G.KeyMasterNS and _G.KeyMasterNS.SCORE_TEXT_COMMAND or "!score",
-        SCORES_TEXT_COMMAND = _G.KeyMasterNS and _G.KeyMasterNS.SCORES_TEXT_COMMAND or "!scores",
-        BEST_TEXT_COMMAND = _G.KeyMasterNS and _G.KeyMasterNS.BEST_TEXT_COMMAND or "!best",
+        KEY_TEXT_COMMAND = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.KEY_TEXT_COMMAND or "!key",
+        KEYS_TEXT_COMMAND = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.KEYS_TEXT_COMMAND or "!keys",
+        SCORE_TEXT_COMMAND = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.SCORE_TEXT_COMMAND or "!score",
+        SCORES_TEXT_COMMAND = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.SCORES_TEXT_COMMAND or "!scores",
+        BEST_TEXT_COMMAND = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.BEST_TEXT_COMMAND or "!best",
         CHAT_EVENTS = CHAT_EVENTS,
         CHAT_EVENT_TO_CHANNEL = CHAT_EVENT_TO_CHANNEL,
         strtrim = strtrim,
@@ -2382,10 +2382,10 @@ local function BuildChatContext()
         BuildScoreReply = BuildScoreReply,
         BuildBestReply = BuildBestReply,
         PrintLocal = PrintLocal,
-        ParseKeystoneFromMessage = KMNS.ParseKeystoneFromMessage,
+        ParseKeystoneFromMessage = KSMNS.ParseKeystoneFromMessage,
         SaveGuildMemberData = SaveGuildMemberData,
-        ExtractRequestCommand = KMNS.ExtractRequestCommand,
-        CanReadChatPayload = KMNS.CanReadChatPayload,
+        ExtractRequestCommand = KSMNS.ExtractRequestCommand,
+        CanReadChatPayload = KSMNS.CanReadChatPayload,
         RequestGuildSnapshots = RequestGuildSnapshots,
         SendOrQueueChatMessage = SendOrQueueChatMessage,
         RefreshKSMWindowIfVisible = RefreshKSMWindowIfVisible,
@@ -2421,7 +2421,7 @@ BuildRunStateContext = function()
 end
 
 local function HandleChatMessage(event, message, sender)
-    local chatModule = _G.KeyMasterNS and _G.KeyMasterNS.Chat
+    local chatModule = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.Chat
     if chatModule and chatModule.HandleChatMessage then
         chatModule.HandleChatMessage(BuildChatContext(), event, message, sender)
     end
@@ -2741,7 +2741,7 @@ local function ResolveEnemyForcesPercent(criteriaInfo, mapID, mapName)
     local quantityValue = type(criteriaInfo.quantity) == "number" and criteriaInfo.quantity or nil
     local useDirectPercent = criteriaInfo.isWeightedProgress == true
 
-    local quantityStringPercent = KMNS.ParsePercentValue(criteriaInfo.quantityString)
+    local quantityStringPercent = KSMNS.ParsePercentValue(criteriaInfo.quantityString)
     if criteriaInfo.isWeightedProgress and type(quantityStringPercent) == "number" then
         quantityValue = quantityStringPercent
         useDirectPercent = false
@@ -2787,7 +2787,7 @@ GetCriteriaState = function(mapID, mapName)
                 local percent = ResolveEnemyForcesPercent(info, mapID, mapName)
 
                 local confidence = 0
-                if KMNS.ParsePercentValue(info.quantityString) ~= nil then
+                if KSMNS.ParsePercentValue(info.quantityString) ~= nil then
                     confidence = confidence + 3
                 end
                 if info.isWeightedProgress then
@@ -2827,7 +2827,7 @@ local function CalculateEnemyForcesPercent(enemyInfo)
         return nil
     end
 
-    local percent = KMNS.ParsePercentValue(enemyInfo.quantityString)
+    local percent = KSMNS.ParsePercentValue(enemyInfo.quantityString)
     if type(percent) == "number" then
         return math.min(100, math.max(0, percent))
     end
@@ -2871,7 +2871,7 @@ CalculateChestTimerLimits = function(maxTimeSeconds, affixIDs)
     local twoChestLimit = maxTimeSeconds * 0.8
     local threeChestLimit = maxTimeSeconds * 0.6
 
-    local challengersPerilAffixID = _G.KeyMasterNS and _G.KeyMasterNS.CHALLENGERS_PERIL_AFFIX_ID or 152
+    local challengersPerilAffixID = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.CHALLENGERS_PERIL_AFFIX_ID or 152
     for _, affixID in ipairs(affixIDs or {}) do
         if affixID == challengersPerilAffixID then
             local timeWithoutPenaltyWindow = maxTimeSeconds - 90
@@ -2885,7 +2885,7 @@ CalculateChestTimerLimits = function(maxTimeSeconds, affixIDs)
 end
 
 local function GetActiveRunState()
-    local runStateModule = _G.KeyMasterNS and _G.KeyMasterNS.RunState
+    local runStateModule = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.RunState
     if runStateModule and runStateModule.GetActiveRunState then
         return runStateModule.GetActiveRunState(BuildRunStateContext())
     end
@@ -2893,14 +2893,14 @@ local function GetActiveRunState()
 end
 
 local function CaptureCompletedRunState()
-    local runStateModule = _G.KeyMasterNS and _G.KeyMasterNS.RunState
+    local runStateModule = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.RunState
     if runStateModule and runStateModule.CaptureCompletedRunState then
         runStateModule.CaptureCompletedRunState(BuildRunStateContext())
     end
 end
 
 local function RefreshCompletedRunTimingFromAPI()
-    local runStateModule = _G.KeyMasterNS and _G.KeyMasterNS.RunState
+    local runStateModule = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.RunState
     if runStateModule and runStateModule.RefreshCompletedRunTimingFromAPI then
         runStateModule.RefreshCompletedRunTimingFromAPI(BuildRunStateContext())
     end
@@ -2924,7 +2924,7 @@ local function SaveMythicFramePoint()
 
     local point, relativeTo, relativePoint, xOffset, yOffset = ui.frame:GetPoint(1)
     local relativeName = (relativeTo and relativeTo.GetName and relativeTo:GetName()) or "UIParent"
-    KeyMasterDB.ui.point = {
+    KeyStoneMasteryDB.ui.point = {
         point or "CENTER",
         relativeName,
         relativePoint or "CENTER",
@@ -3244,14 +3244,14 @@ local function RenderMythicUI()
 
             if state.maxTimeSeconds then
                 if type(state.timeLeftSeconds) == "number" and state.timeLeftSeconds < 0 then
-                    ui.timerLine:SetText(string.format("+%s over (%s / %s)", KMNS.FormatSeconds(-state.timeLeftSeconds), KMNS.FormatSeconds(state.elapsedSeconds), KMNS.FormatSeconds(state.maxTimeSeconds)))
+                    ui.timerLine:SetText(string.format("+%s over (%s / %s)", KSMNS.FormatSeconds(-state.timeLeftSeconds), KSMNS.FormatSeconds(state.elapsedSeconds), KSMNS.FormatSeconds(state.maxTimeSeconds)))
                     ui.timerLine:SetTextColor(1, 0.25, 0.25, 1)
                 else
-                    ui.timerLine:SetText(string.format("%s (%s / %s)", KMNS.FormatSeconds(state.timeLeftSeconds), KMNS.FormatSeconds(state.elapsedSeconds), KMNS.FormatSeconds(state.maxTimeSeconds)))
+                    ui.timerLine:SetText(string.format("%s (%s / %s)", KSMNS.FormatSeconds(state.timeLeftSeconds), KSMNS.FormatSeconds(state.elapsedSeconds), KSMNS.FormatSeconds(state.maxTimeSeconds)))
                     ui.timerLine:SetTextColor(1, 1, 1, 1)
                 end
             else
-                ui.timerLine:SetText(KMNS.FormatSeconds(state.elapsedSeconds))
+                ui.timerLine:SetText(KSMNS.FormatSeconds(state.elapsedSeconds))
                 ui.timerLine:SetTextColor(1, 1, 1, 1)
             end
             ui.timerLine:SetWidth(width)
@@ -3260,7 +3260,7 @@ local function RenderMythicUI()
             y = y - ui.timerLine:GetStringHeight() - 4
 
             if state.twoChestLimit then
-                ui.twoChestLine:SetText(string.format("+2 (%s): %s", KMNS.FormatSeconds(state.twoChestLimit), KMNS.FormatSeconds(math.max(0, state.twoChestLimit - state.elapsedSeconds))))
+                ui.twoChestLine:SetText(string.format("+2 (%s): %s", KSMNS.FormatSeconds(state.twoChestLimit), KSMNS.FormatSeconds(math.max(0, state.twoChestLimit - state.elapsedSeconds))))
             else
                 ui.twoChestLine:SetText("+2: --:--")
             end
@@ -3270,7 +3270,7 @@ local function RenderMythicUI()
             y = y - ui.twoChestLine:GetStringHeight() - 4
 
             if state.threeChestLimit then
-                ui.threeChestLine:SetText(string.format("+3 (%s): %s", KMNS.FormatSeconds(state.threeChestLimit), KMNS.FormatSeconds(math.max(0, state.threeChestLimit - state.elapsedSeconds))))
+                ui.threeChestLine:SetText(string.format("+3 (%s): %s", KSMNS.FormatSeconds(state.threeChestLimit), KSMNS.FormatSeconds(math.max(0, state.threeChestLimit - state.elapsedSeconds))))
             else
                 ui.threeChestLine:SetText("+3: --:--")
             end
@@ -3326,7 +3326,7 @@ local function RenderMythicUI()
             end
 
             if state.deathCount and state.deathCount > 0 then
-                ui.deathLine:SetText(string.format("Deaths: %d (-%s)", state.deathCount, KMNS.FormatSeconds(state.deathPenalty or 0)))
+                ui.deathLine:SetText(string.format("Deaths: %d (-%s)", state.deathCount, KSMNS.FormatSeconds(state.deathPenalty or 0)))
                 ui.deathLine:SetWidth(width)
                 ui.deathLine:ClearAllPoints()
                 ui.deathLine:SetPoint("TOPLEFT", ui.frame, "TOPLEFT", xPadding, y)
@@ -3366,7 +3366,7 @@ local function RenderMythicUI()
             y = y - ui.headerLine:GetStringHeight() - 4
 
             local elapsedSeconds = GetWorldElapsedSeconds() or 0
-            ui.timerLine:SetText(string.format("%s (waiting for challenge data)", KMNS.FormatSeconds(elapsedSeconds)))
+            ui.timerLine:SetText(string.format("%s (waiting for challenge data)", KSMNS.FormatSeconds(elapsedSeconds)))
             ui.timerLine:SetTextColor(1, 1, 1, 1)
             ui.timerLine:SetWidth(width)
             ui.timerLine:ClearAllPoints()
@@ -3432,14 +3432,14 @@ local function RenderMythicUI()
             end
 
             if completed.maxTimeSeconds then
-                ui.timerLine:SetText(string.format("Completed: %s (%s left)", KMNS.FormatSeconds(completed.elapsedSeconds or 0), KMNS.FormatSignedSeconds(completed.timeLeftSeconds or 0)))
+                ui.timerLine:SetText(string.format("Completed: %s (%s left)", KSMNS.FormatSeconds(completed.elapsedSeconds or 0), KSMNS.FormatSignedSeconds(completed.timeLeftSeconds or 0)))
                 if type(completed.timeLeftSeconds) == "number" and completed.timeLeftSeconds < 0 then
                     ui.timerLine:SetTextColor(1, 0.25, 0.25, 1)
                 else
                     ui.timerLine:SetTextColor(1, 1, 1, 1)
                 end
             else
-                ui.timerLine:SetText(string.format("Completed: %s", KMNS.FormatSeconds(completed.elapsedSeconds or 0)))
+                ui.timerLine:SetText(string.format("Completed: %s", KSMNS.FormatSeconds(completed.elapsedSeconds or 0)))
                 ui.timerLine:SetTextColor(1, 1, 1, 1)
             end
             ui.timerLine:SetWidth(width)
@@ -3455,7 +3455,7 @@ local function RenderMythicUI()
             y = y - ui.twoChestLine:GetStringHeight() - 4
 
             if completed.maxTimeSeconds then
-                ui.threeChestLine:SetText(string.format("Timer: %s / %s", KMNS.FormatSeconds(completed.elapsedSeconds or 0), KMNS.FormatSeconds(completed.maxTimeSeconds)))
+                ui.threeChestLine:SetText(string.format("Timer: %s / %s", KSMNS.FormatSeconds(completed.elapsedSeconds or 0), KSMNS.FormatSeconds(completed.maxTimeSeconds)))
             else
                 ui.threeChestLine:SetText("Timer: --:--")
             end
@@ -3466,7 +3466,7 @@ local function RenderMythicUI()
             y = y - ui.threeChestLine:GetStringHeight() - 6
 
             if completed.deathCount and completed.deathCount > 0 then
-                ui.deathLine:SetText(string.format("Deaths: %d (-%s)", completed.deathCount, KMNS.FormatSeconds(completed.deathPenalty or 0)))
+                ui.deathLine:SetText(string.format("Deaths: %d (-%s)", completed.deathCount, KSMNS.FormatSeconds(completed.deathPenalty or 0)))
                 ui.deathLine:SetWidth(width)
                 ui.deathLine:ClearAllPoints()
                 ui.deathLine:SetPoint("TOPLEFT", ui.frame, "TOPLEFT", xPadding, y)
@@ -3501,14 +3501,14 @@ local function CreateMythicUI()
         return
     end
 
-    local mythicFrame = CreateFrame("Frame", "KeyMasterMythicFrame", UIParent, BackdropTemplateMixin and "BackdropTemplate")
+    local mythicFrame = CreateFrame("Frame", "KeyStoneMasteryMythicFrame", UIParent, BackdropTemplateMixin and "BackdropTemplate")
     mythicFrame:SetClampedToScreen(true)
     mythicFrame:SetMovable(true)
     mythicFrame:SetResizable(false)
     mythicFrame:EnableMouse(true)
     mythicFrame:RegisterForDrag("LeftButton")
     mythicFrame:SetScript("OnDragStart", function(self)
-        if KeyMasterDB.ui.locked then
+        if KeyStoneMasteryDB.ui.locked then
             return
         end
 
@@ -3657,7 +3657,7 @@ RefreshMythicUI = function()
         CreateMythicUI()
     end
 
-    ui.lastRefreshAt = ((_G.KeyMasterNS and _G.KeyMasterNS.UI_REFRESH_INTERVAL_SECONDS) or 0.2)
+    ui.lastRefreshAt = ((_G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.UI_REFRESH_INTERVAL_SECONDS) or 0.2)
     RenderMythicUI()
 end
 
@@ -3666,7 +3666,7 @@ end
 -- runs even when the mythic frame is hidden, so it can self-show on challenge start.
 frame:SetScript("OnUpdate", function(_, elapsed)
     ui.lastRefreshAt = (ui.lastRefreshAt or 0) + elapsed
-    if ui.lastRefreshAt < ((_G.KeyMasterNS and _G.KeyMasterNS.UI_REFRESH_INTERVAL_SECONDS) or 0.2) then
+    if ui.lastRefreshAt < ((_G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.UI_REFRESH_INTERVAL_SECONDS) or 0.2) then
         return
     end
     ui.lastRefreshAt = 0
@@ -3685,11 +3685,11 @@ local function TryAutoSlotKeystone()
     if not (C_ChallengeMode and C_ChallengeMode.SlotKeystone) then return end
     if not (C_Container and C_Container.GetContainerNumSlots and C_Container.GetContainerItemID and C_Container.PickupContainerItem) then return end
     if InCombatLockdown and InCombatLockdown() then return end
-    for _, bagID in ipairs((_G.KeyMasterNS and _G.KeyMasterNS.KEYSTONE_BAG_SLOTS) or { Enum.BagIndex.Backpack, Enum.BagIndex.Bag_1, Enum.BagIndex.Bag_2, Enum.BagIndex.Bag_3, Enum.BagIndex.Bag_4 }) do
+    for _, bagID in ipairs((_G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.KEYSTONE_BAG_SLOTS) or { Enum.BagIndex.Backpack, Enum.BagIndex.Bag_1, Enum.BagIndex.Bag_2, Enum.BagIndex.Bag_3, Enum.BagIndex.Bag_4 }) do
         local slotCount = C_Container.GetContainerNumSlots(bagID) or 0
         for slotIndex = 1, slotCount do
             local itemID = C_Container.GetContainerItemID(bagID, slotIndex)
-            if (((_G.KeyMasterNS and _G.KeyMasterNS.KEYSTONE_ITEM_IDS) or { [180653] = true, [158923] = true, [151086] = true })[itemID]) then
+            if (((_G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.KEYSTONE_ITEM_IDS) or { [180653] = true, [158923] = true, [151086] = true })[itemID]) then
                 local pickupOk = pcall(C_Container.PickupContainerItem, bagID, slotIndex)
                 if CursorHasItem() then
                     pcall(C_ChallengeMode.SlotKeystone)
@@ -3772,7 +3772,7 @@ local function PrintEnemyForcesDebugSummary()
         local info = NormalizeCriteriaInfo(index)
         if info and IsEnemyForcesName(info.name) then
             found = true
-            local parsedPercent = KMNS.ParsePercentValue(info.quantityString)
+            local parsedPercent = KSMNS.ParsePercentValue(info.quantityString)
             local inferredTotal
             if type(info.quantity) == "number" and info.quantity > 0 and type(parsedPercent) == "number" and parsedPercent > 0 then
                 inferredTotal = (info.quantity * 100) / parsedPercent
@@ -4338,8 +4338,8 @@ local function TrySetGreatVaultTexture(texture)
     local hasAnyUnlockedSlot = type(unlockedSlots) == "number" and unlockedSlots > 0
     local _ = totalSlots
     texture:SetTexture(hasAnyUnlockedSlot
-        and ((_G.KeyMasterNS and _G.KeyMasterNS.KSM_VAULT_TEXTURE_GLOWY) or "Interface\\AddOns\\KeyMaster\\Assets\\UI\\Vault_Glowy.png")
-        or ((_G.KeyMasterNS and _G.KeyMasterNS.KSM_VAULT_TEXTURE_EMPTY) or "Interface\\AddOns\\KeyMaster\\Assets\\UI\\Vault.png"))
+        and ((_G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.KSM_VAULT_TEXTURE_GLOWY) or "Interface\\AddOns\\KeyStoneMastery\\Assets\\UI\\Vault_Glowy.png")
+        or ((_G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.KSM_VAULT_TEXTURE_EMPTY) or "Interface\\AddOns\\KeyStoneMastery\\Assets\\UI\\Vault.png"))
     texture:SetTexCoord(0, 1, 0, 1)
     texture:SetBlendMode("BLEND")
     return true
@@ -4722,7 +4722,7 @@ local function BuildKSMContext()
         floor = math.floor,
         min = math.min,
         max = math.max,
-        KSM_GUILD_RECENT_DAYS = (_G.KeyMasterNS and _G.KeyMasterNS.KSM_GUILD_RECENT_DAYS) or 7,
+        KSM_GUILD_RECENT_DAYS = (_G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.KSM_GUILD_RECENT_DAYS) or 7,
         GetMythicPlusScore = GetMythicPlusScore,
         GetBestRunsFromHistory = GetBestRunsFromHistory,
         GetBestRunFromMapLookup = GetBestRunFromMapLookup,
@@ -4750,13 +4750,13 @@ local function BuildKSMContext()
         GetPortalSpellIDForMap = GetPortalSpellIDForMap,
         EnsureKSMDataLine = EnsureKSMDataLine,
         EnsureKSMPartyRow = EnsureKSMPartyRow,
-        IsPlayerInGuildSafe = KMNS.IsPlayerInGuildSafe,
-        RequestGuildRosterSafe = KMNS.RequestGuildRosterSafe,
+        IsPlayerInGuildSafe = KSMNS.IsPlayerInGuildSafe,
+        RequestGuildRosterSafe = KSMNS.RequestGuildRosterSafe,
         RequestGuildKeysFromAllSources = RequestGuildKeysFromAllSources,
         GetNormalizedPlayerName = GetNormalizedPlayerName,
-        GetNumGuildMembersSafe = KMNS.GetNumGuildMembersSafe,
+        GetNumGuildMembersSafe = KSMNS.GetNumGuildMembersSafe,
         TryGetMythicScoreForIdentifier = TryGetMythicScoreForIdentifier,
-        IsGuildMemberRecent = KMNS.IsGuildMemberRecent,
+        IsGuildMemberRecent = KSMNS.IsGuildMemberRecent,
         GetGuildMemberStore = GetGuildMemberStore,
         GetOwnCharacterStore = GetOwnCharacterStore,
         InvitePlayerByName = InvitePlayerByName,
@@ -4768,7 +4768,7 @@ local function BuildKSMContext()
 end
 
 local function SetKSMActiveTab(tabName)
-    local ksmModule = _G.KeyMasterNS and _G.KeyMasterNS.KSM
+    local ksmModule = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.KSM
     if ksmModule and ksmModule.SetActiveTab then
         ksmModule.SetActiveTab(BuildKSMContext(), tabName)
     end
@@ -4779,7 +4779,7 @@ function RefreshKSMWindow()
         return
     end
 
-    local ksmModule = _G.KeyMasterNS and _G.KeyMasterNS.KSM
+    local ksmModule = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.KSM
     if not ksmModule then
         return
     end
@@ -5381,8 +5381,8 @@ function CreateKSMWindow()
     SetKSMActiveTab("main")
 end
 
-SLASH_KEYSTONEMASTER1 = "/ksm"
-SlashCmdList.KEYSTONEMASTER = function(message)
+SLASH_KEYSTONEMASTERYDASHBOARD1 = "/ksm"
+SlashCmdList.KEYSTONEMASTERYDASHBOARD = function(message)
     PersistOwnGuildSnapshot()
     CreateKSMWindow()
     local command = strtrim(string.lower(message or ""))
@@ -5449,9 +5449,9 @@ SlashCmdList.KEYSTONEMASTER = function(message)
     PrintLocal("unknown /ksm command. Use: show, hide, toggle, main, party, guild, recents, warband, refresh, debug")
 end
 
-SLASH_KEYMASTER1 = "/keymaster"
-SLASH_KEYMASTER2 = "/km"
-SlashCmdList.KEYMASTER = function(message)
+SLASH_KEYSTONEMASTERY1 = "/keystonemastery"
+SLASH_KEYSTONEMASTERY2 = "/km"
+SlashCmdList.KEYSTONEMASTERY = function(message)
     InitializeDatabase()
     CreateMythicUI()
     RegisterSettingsPanel()
@@ -5533,22 +5533,22 @@ SlashCmdList.KEYMASTER = function(message)
     end
 
     if command == "hide" then
-        KeyMasterDB.ui.hidden = true
+        KeyStoneMasteryDB.ui.hidden = true
         RefreshMythicUI()
         PrintLocal("UI hidden")
         return
     end
 
     if command == "show" then
-        KeyMasterDB.ui.hidden = false
+        KeyStoneMasteryDB.ui.hidden = false
         RefreshMythicUI()
         PrintLocal("UI shown")
         return
     end
 
     if command == "reset" then
-        KeyMasterDB.ui.point = CopyDefaults(DEFAULT_DB.ui.point, {})
-        KeyMasterDB.ui.scale = DEFAULT_DB.ui.scale
+        KeyStoneMasteryDB.ui.point = CopyDefaults(DEFAULT_DB.ui.point, {})
+        KeyStoneMasteryDB.ui.scale = DEFAULT_DB.ui.scale
         ApplyMythicFrameSettings()
         RefreshMythicUI()
         PrintLocal("UI position and scale reset to the default top-right location")
@@ -5559,7 +5559,7 @@ SlashCmdList.KEYMASTER = function(message)
     if scaleValue then
         local numericScale = tonumber(scaleValue)
         if numericScale and numericScale >= 0.7 and numericScale <= 1.5 then
-            KeyMasterDB.ui.scale = numericScale
+            KeyStoneMasteryDB.ui.scale = numericScale
             ApplyMythicFrameSettings()
             RefreshMythicUI()
             PrintLocal(string.format("UI scale set to %.2f", numericScale))
@@ -5588,7 +5588,7 @@ function PerformLoginInitialization()
         pcall(C_ChatInfo.RegisterAddonMessagePrefix, KSM_ADDON_PREFIX)
         pcall(C_ChatInfo.RegisterAddonMessagePrefix, ASTRAL_KEYS_PREFIX)
         pcall(C_ChatInfo.RegisterAddonMessagePrefix, DETAILS_OPENRAID_PREFIX)
-        pcall(C_ChatInfo.RegisterAddonMessagePrefix, _G.KeyMasterNS and _G.KeyMasterNS.DETAILS_PLAYERINFO_PREFIX or "PITB")
+        pcall(C_ChatInfo.RegisterAddonMessagePrefix, _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.DETAILS_PLAYERINFO_PREFIX or "PITB")
     end
     if C_AddOns and C_AddOns.IsAddOnLoaded and C_AddOns.IsAddOnLoaded("Blizzard_ChallengesUI") then
         HookChallengesFrame()
@@ -5730,7 +5730,7 @@ frame:SetScript("OnEvent", function(_, event, ...)
         end
     end
 
-    local runStateModule = _G.KeyMasterNS and _G.KeyMasterNS.RunState
+    local runStateModule = _G.KeyStoneMasteryNS and _G.KeyStoneMasteryNS.RunState
 
     if runStateModule and runStateModule.HandleChallengeLifecycleEvent
         and runStateModule.HandleChallengeLifecycleEvent(BuildRunStateContext(), event) then

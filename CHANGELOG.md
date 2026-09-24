@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.6] - 2026-09-24
+
+### Changed
+- Renamed the addon folder, TOC, Lua modules, database, internal namespace, frame names, texture paths, and GitHub repository to KeyStoneMastery.
+- Added `/keystonemastery` for help and settings; retained `/km` and the `/ksm` dashboard.
+- Renamed the addon sync identifier. Direct sync between copies requires version 2.0.6 or newer on both sides.
+- Added a Windows installer that backs up the previous installation and migrates existing settings while WoW is closed.
+- Updated release packaging and current documentation for the new folder and file names.
+
 ## [2.0.5] - 2026-09-02
 
 ### Fixed
@@ -190,7 +199,7 @@ All notable changes to this project will be documented in this file.
 ## [1.8.6] - 2026-04-22
 
 ### Fixed
-- Fixed `ResolvePreferredStoreName` nil-call crash (`KeyMaster.lua:933`) by forward-declaring `GetNormalizedPlayerName` so early-scope calls bind to the local helper instead of global nil.
+- Fixed `ResolvePreferredStoreName` nil-call crash (`KeyStoneMastery.lua:933`) by forward-declaring `GetNormalizedPlayerName` so early-scope calls bind to the local helper instead of global nil.
 - Removed dead local declarations discovered during BugGrabber follow-up cleanup (`lastMismatchToastAt`, `ShowLocalToast`) while preserving runtime behavior.
 
 ### Packaging
@@ -200,11 +209,11 @@ All notable changes to this project will be documented in this file.
 ## [1.8.5] - 2026-04-22
 
 ### Fixed
-- Resolved Lua compiler error "main function has more than 200 local variables" that prevented KeyMaster from loading. Inlined three rarely-used stdlib aliases (`band`, `strfind`, `strmatch`) to bring the top-level local count back within Lua's 200-variable limit.
-- Fixed `ResolvePreferredStoreName` nil-call crash (`KeyMaster.lua:933`) by forward-declaring `GetNormalizedPlayerName` so early-scope calls bind to the local helper instead of global nil.
+- Resolved Lua compiler error "main function has more than 200 local variables" that prevented KeyStoneMastery from loading. Inlined three rarely-used stdlib aliases (`band`, `strfind`, `strmatch`) to bring the top-level local count back within Lua's 200-variable limit.
+- Fixed `ResolvePreferredStoreName` nil-call crash (`KeyStoneMastery.lua:933`) by forward-declaring `GetNormalizedPlayerName` so early-scope calls bind to the local helper instead of global nil.
 - Reduced top-level local pressure to create expansion headroom by collapsing five single-use KSM refresh wrapper functions into one table-driven refresh loop in `RefreshKSMWindow`.
 - Removed five unreferenced local helper functions and two additional dead local declarations discovered during cleanup (`CollapseRepeatedRealmSuffix`, `ShowMismatchToast`, `EnsureHiddenTrackerFrame`, `GetPortalSecureSpellToken`, `TryGetBestSeasonRunForIdentifier`, `lastMismatchToastAt`, `ShowLocalToast`).
-- Lowered `KeyMaster.lua` top-level local declaration count from `200` to `188`.
+- Lowered `KeyStoneMastery.lua` top-level local declaration count from `200` to `188`.
 
 ### Packaging
 - Bumped TOC version to `1.8.5`.
@@ -241,7 +250,7 @@ All notable changes to this project will be documented in this file.
 ## [1.8.2] - 2026-04-21
 
 ### Fixed
-- Removed runtime event-registration calls from login/addon handlers and restored one-time startup event wiring to eliminate the KeyMaster `Frame:RegisterEvent()` forbidden call path reported by BugGrabber.
+- Removed runtime event-registration calls from login/addon handlers and restored one-time startup event wiring to eliminate the KeyStoneMastery `Frame:RegisterEvent()` forbidden call path reported by BugGrabber.
 
 ### Packaging
 - Bumped TOC version to `1.8.2`.
@@ -250,7 +259,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 - Enforced combat-time chat safety by treating all incoming chat payloads as unreadable while in combat.
-- Added an explicit combat short-circuit in chat handlers so KeyMaster performs no chat parsing during combat lockdown.
+- Added an explicit combat short-circuit in chat handlers so KeyStoneMastery performs no chat parsing during combat lockdown.
 
 ### Packaging
 - Bumped TOC version to `1.8.1`.
@@ -271,7 +280,7 @@ All notable changes to this project will be documented in this file.
 ## [1.7.9] - 2026-04-21
 
 ### Fixed
-- Removed deferred runtime event-registration retries and switched to one-time startup event wiring so KeyMaster no longer performs late `RegisterEvent` calls in taint-sensitive contexts.
+- Removed deferred runtime event-registration retries and switched to one-time startup event wiring so KeyStoneMastery no longer performs late `RegisterEvent` calls in taint-sensitive contexts.
 - Hardened abandon vote button handling to prefer Blizzard challenge-mode vote APIs only (`RequestLeaverVote`/`StartLeaverVote`) instead of slash/macro fallbacks that can vary by client state.
 - Improved world timer reads by probing available timer IDs before falling back, reducing brittle assumptions around timer index ordering in Retail 12.0.1.
 
@@ -322,7 +331,7 @@ All notable changes to this project will be documented in this file.
 - Updated the Mythic+ abandon vote button to use a slash-command fallback (`/abandon`) when direct `C_ChallengeMode` vote APIs are unavailable in the client build.
 
 ### Changed
-- Restyled the Mythic+ abandon vote button to match the KeyMaster overlay aesthetic (custom dark panel styling with blue accent and hover/press states).
+- Restyled the Mythic+ abandon vote button to match the KeyStoneMastery overlay aesthetic (custom dark panel styling with blue accent and hover/press states).
 - The abandon vote button now stays hidden until death count reaches `5` or higher.
 
 ### Packaging
@@ -364,19 +373,19 @@ All notable changes to this project will be documented in this file.
 - Added TOC icon metadata so KeyStoneMastery shows an addon-list icon in-game.
 - Added Guild tab controls for pagination and `Hide Offline` filtering.
 - Guild request button now triggers active guild key pulls across enabled sources.
-- Kept `KeyMaster.lua` as the main runtime file and split shared constants/data into dedicated modules:
-  - `KeyMaster.Constants.lua`
-  - `KeyMaster.Data.lua`
-- Split reusable parsing/formatting/request helpers into `KeyMaster.Utils.lua`.
-- Split guild safety/recent-activity helpers into `KeyMaster.GuildUtils.lua`.
-- Split addon sync/external key-ingestion pipeline into `KeyMaster.Sync.lua`.
-- Extracted `/ksm` tab refresh logic into `KeyMaster.UI.KSM.lua` to keep `KeyMaster.lua` focused on orchestration.
-- Updated TOC load order so shared modules load before `KeyMaster.lua`.
+- Kept `KeyStoneMastery.lua` as the main runtime file and split shared constants/data into dedicated modules:
+  - `KeyStoneMastery.Constants.lua`
+  - `KeyStoneMastery.Data.lua`
+- Split reusable parsing/formatting/request helpers into `KeyStoneMastery.Utils.lua`.
+- Split guild safety/recent-activity helpers into `KeyStoneMastery.GuildUtils.lua`.
+- Split addon sync/external key-ingestion pipeline into `KeyStoneMastery.Sync.lua`.
+- Extracted `/ksm` tab refresh logic into `KeyStoneMastery.UI.KSM.lua` to keep `KeyStoneMastery.lua` focused on orchestration.
+- Updated TOC load order so shared modules load before `KeyStoneMastery.lua`.
 
 ### Fixed
-- Reduced risk of Lua chunk-local overflow in the main file by moving large static tables out of `KeyMaster.lua`.
+- Reduced risk of Lua chunk-local overflow in the main file by moving large static tables out of `KeyStoneMastery.lua`.
 - Added passive guild key cache ingestion from observed keystone chat links and external key-sharing payloads.
-- Restricted `!keys` handling to KeyMaster sync behavior while leaving active external pulls to the Guild request path.
+- Restricted `!keys` handling to KeyStoneMastery sync behavior while leaving active external pulls to the Guild request path.
 - Strengthened guild sync payload parsing and sanitization for malformed addon messages.
 - Added AstralKeys `sync*` batch payload parsing (in addition to `updateV*`) so guild key snapshots populate reliably.
 - Expanded external key-ingestion channels for AstralKeys/OpenRaid messages beyond guild-only flows to improve party/guild coverage.
@@ -393,16 +402,16 @@ All notable changes to this project will be documented in this file.
 - Fixed portal button click execution by registering secure portal buttons for hardware clicks and binding spell cast tokens compatible with secure action attributes.
 - Hardened portal spell API compatibility checks to avoid indexing non-table globals on clients where `C_Spell`/`C_SpellBook` differ, preventing addon load/runtime breaks.
 - Hardened `/km` and `/ksm` slash registration with unique command IDs and early command binding to avoid addon command collisions and preserve command availability during partial initialization.
-- Added dual slash alias registration (`KEYMASTER`/`KEYSTONEMASTER` plus `KEYSTONEMASTERY*`) and login-time rebind to keep `/km` and `/ksm` available even if another addon overwrites slash tables.
+- Added dual slash alias registration (`KEYSTONEMASTERY`/`KEYSTONEMASTER` plus `KEYSTONEMASTERY*`) and login-time rebind to keep `/km` and `/ksm` available even if another addon overwrites slash tables.
 - Added ultra-early fallback slash handlers in constants so `/km` and `/ksm` return a startup diagnostic if later files fail during addon initialization.
 - Hardened core startup against early-load globals by guarding slash registration when `SlashCmdList` is unavailable and falling back to direct `ADDON_LOADED` registration if `C_Timer.After` is unavailable.
-- Simplified `/km` and `/ksm` core slash wiring back to direct handlers in `KeyMaster.lua` to reduce chunk complexity and avoid early core aborts while retaining constants-level fallback diagnostics.
-- Fixed core compile failure (`main function has more than 200 local variables`) by removing top-level utility alias locals in `KeyMaster.lua` and routing those helpers through a shared namespace reference.
+- Simplified `/km` and `/ksm` core slash wiring back to direct handlers in `KeyStoneMastery.lua` to reduce chunk complexity and avoid early core aborts while retaining constants-level fallback diagnostics.
+- Fixed core compile failure (`main function has more than 200 local variables`) by removing top-level utility alias locals in `KeyStoneMastery.lua` and routing those helpers through a shared namespace reference.
 - Fixed `/ksm` teleport buttons (Main/Party/Guild) no-op behavior by binding secure spell actions for valid portal spell IDs regardless of known-check result; known-check now controls visuals/tooltips only.
 - Fixed `/ksm guild` `Hide Offline` filtering by normalizing Blizzard roster online flags (0/1/boolean) before row inclusion and filter checks.
 - Improved `/ksm guild` population reliability by including recent roster members even when key cache is empty, guarding against invalid roster names, and always showing the current player row.
 - Hotfixed `/ksm` tab rendering break by removing non-WoW Lua `goto`/label syntax from guild-tab roster parsing.
-- Expanded KeyMaster sync request/broadcast channels to include active group contexts (`PARTY`/`RAID`/`INSTANCE_CHAT`) in addition to guild, improving raid pickup coverage.
+- Expanded KeyStoneMastery sync request/broadcast channels to include active group contexts (`PARTY`/`RAID`/`INSTANCE_CHAT`) in addition to guild, improving raid pickup coverage.
 - Updated `/ksm guild` roster filtering to list only guild members with known keys, reducing noise from inactive/alts-without-key entries.
 - Ensured `/ksm guild` always includes the current player row when your own known key exists, even if roster normalization misses your name.
 - Excluded the current player from `/ksm recents` so your own key only appears in Guild/Main views.
@@ -423,20 +432,20 @@ All notable changes to this project will be documented in this file.
 - Trimmed non-essential runtime event registrations while preserving guild/chat sync coverage.
 
 ### Packaging
-- Built release archive at `Releases/1.7.0/KeyMaster.zip` with a top-level `KeyMaster/` folder for direct AddOns extraction.
-- Renewed `Releases/1.7.0/KeyMaster.zip` on 2026-04-20 so package contents match latest 1.7.0 code.
+- Built release archive at `Releases/1.7.0/KeyStoneMastery.zip` with a top-level `KeyStoneMastery/` folder for direct AddOns extraction.
+- Renewed `Releases/1.7.0/KeyStoneMastery.zip` on 2026-04-20 so package contents match latest 1.7.0 code.
 
 ## [1.6.8] - 2026-04-13
 
 ### Changed
-- Renamed addon from **KeyMaster** to **KeyStone Master**
+- Renamed addon from **KeyStoneMastery** to **KeyStone Master**
 - Updated chat reply prefix to `KeyStoneMaster:`
 
 ### Fixed
 - Fixed protected function call error with frame event registration
 
 ### Packaging
-- Built release archive at `Releases/1.6.8/KeyMaster.zip`.
+- Built release archive at `Releases/1.6.8/KeyStoneMastery.zip`.
 
 ## [1.6.7] - 2026-04-11
 
@@ -448,7 +457,7 @@ All notable changes to this project will be documented in this file.
 - Addon name changed to **KeyStone Master**
 
 ### Packaging
-- Built release archive at `Releases/1.6.7/KeyMaster.zip`.
+- Built release archive at `Releases/1.6.7/KeyStoneMastery.zip`.
 
 ## [1.6.6] - 2026-04-11
 
@@ -457,7 +466,7 @@ All notable changes to this project will be documented in this file.
 - Removed the `securecallfunction` registration wrapper and late registration path tied to fresh `UNKNOWN()` forbidden BugGrabber stacks.
 
 ### Packaging
-- Built release archive at `Releases/1.6.6/KeyMaster.zip`.
+- Built release archive at `Releases/1.6.6/KeyStoneMastery.zip`.
 
 ## [1.6.5] - 2026-04-09
 
@@ -466,16 +475,16 @@ All notable changes to this project will be documented in this file.
 - Kept one-time startup event wiring behavior while hardening against taint-sensitive registration contexts.
 
 ### Packaging
-- Built release archive at `Releases/1.6.5/KeyMaster.zip`.
+- Built release archive at `Releases/1.6.5/KeyStoneMastery.zip`.
 
 ## [1.6.4] - 2026-04-08
 
 ### Fixed
 - Removed runtime/deferred `Frame:RegisterEvent()` calls and restored one-time static event registration at file load.
-- Eliminated the KeyMaster forbidden call path seen in BugGrabber stacks (`Frame:RegisterEvent()` at runtime).
+- Eliminated the KeyStoneMastery forbidden call path seen in BugGrabber stacks (`Frame:RegisterEvent()` at runtime).
 
 ### Packaging
-- Built release archive at `Releases/1.6.4/KeyMaster.zip`.
+- Built release archive at `Releases/1.6.4/KeyStoneMastery.zip`.
 
 ## [1.6.3] - 2026-04-03
 
@@ -484,7 +493,7 @@ All notable changes to this project will be documented in this file.
 - Added idempotent login initialization so startup setup still runs if `PLAYER_LOGIN` was missed while runtime events were deferred.
 
 ### Packaging
-- Built release archive at `Releases/1.6.3/KeyMaster.zip`.
+- Built release archive at `Releases/1.6.3/KeyStoneMastery.zip`.
 
 ## [1.6.2] - 2026-04-02
 
@@ -493,7 +502,7 @@ All notable changes to this project will be documented in this file.
 - Eliminated the protected `UNKNOWN()`/`Frame:RegisterEvent()` forbidden path seen in BugGrabber stacks.
 
 ### Packaging
-- Built release archive at `Releases/1.6.2/KeyMaster.zip`.
+- Built release archive at `Releases/1.6.2/KeyStoneMastery.zip`.
 
 ## [1.6.1] - 2026-04-02
 
@@ -502,7 +511,7 @@ All notable changes to this project will be documented in this file.
 - Added guarded retry registration logic so event wiring completes safely after load/combat constraints clear.
 
 ### Packaging
-- Built release archive at `Releases/1.6.1/KeyMaster.zip`.
+- Built release archive at `Releases/1.6.1/KeyStoneMastery.zip`.
 
 ## [1.6.0] - 2026-04-02
 
@@ -511,16 +520,16 @@ All notable changes to this project will be documented in this file.
 - Deferred new-keystone party announcements during combat so post-run key updates still announce safely after `PLAYER_REGEN_ENABLED`.
 
 ### Packaging
-- Built release archive at `Releases/1.6.0/KeyMaster.zip`.
+- Built release archive at `Releases/1.6.0/KeyStoneMastery.zip`.
 
 ## [1.5.9] - 2026-04-01
 
 ### Fixed
 - Restored automatic keystone slotting when the Font of Power receptacle opens — scans bags for a Mythic Keystone and slots it via `C_ChallengeMode.SlotKeystone()` without triggering protected-action errors.
-- Updated settings panel description to accurately reflect that automatic keystone slotting is active when the KeyMaster Mythic+ UI is enabled.
+- Updated settings panel description to accurately reflect that automatic keystone slotting is active when the KeyStoneMastery Mythic+ UI is enabled.
 
 ### Packaging
-- Built release archive at `Releases/1.5.9/KeyMaster.zip`.
+- Built release archive at `Releases/1.5.9/KeyStoneMastery.zip`.
 
 ## [1.5.8] - 2026-03-31
 
@@ -531,7 +540,7 @@ All notable changes to this project will be documented in this file.
 - Wrapped command reply construction in protected execution to fail closed on unexpected runtime payload edge cases.
 
 ### Packaging
-- Built release archive at `Releases/1.5.8/KeyMaster.zip`.
+- Built release archive at `Releases/1.5.8/KeyStoneMastery.zip`.
 
 ## [1.5.7] - 2026-03-30
 
@@ -541,7 +550,7 @@ All notable changes to this project will be documented in this file.
 - Added one-time frame-event registration guard to prevent duplicate event wiring.
 
 ### Packaging
-- Built release archive at `Releases/1.5.7/KeyMaster.zip`.
+- Built release archive at `Releases/1.5.7/KeyStoneMastery.zip`.
 
 ## [1.5.6] - 2026-03-29
 
@@ -551,7 +560,7 @@ All notable changes to this project will be documented in this file.
 - Added safe fallback so weekly best uses season best when week-specific API flags are missing but valid season data exists.
 
 ### Packaging
-- Built release archive at `Releases/1.5.6/KeyMaster.zip`.
+- Built release archive at `Releases/1.5.6/KeyStoneMastery.zip`.
 
 ## [1.5.5] - 2026-03-29
 
@@ -560,7 +569,7 @@ All notable changes to this project will be documented in this file.
 - Kept deferred registration for remaining frame events after initialization to preserve protected-call safety.
 
 ### Packaging
-- Built release archive at `Releases/1.5.5/KeyMaster.zip`.
+- Built release archive at `Releases/1.5.5/KeyStoneMastery.zip`.
 
 ## [1.5.4] - 2026-03-29
 
@@ -569,7 +578,7 @@ All notable changes to this project will be documented in this file.
 - RegisterEvent calls now use deferred execution via pcall guards in a safe event context.
 
 ### Packaging
-- Built release archive at `Releases/1.5.4/KeyMaster.zip`.
+- Built release archive at `Releases/1.5.4/KeyStoneMastery.zip`.
 
 ## [1.5.3] - 2026-03-29
 
@@ -578,7 +587,7 @@ All notable changes to this project will be documented in this file.
 - Command replies now route through normalized command tokens (`!key`, `!keys`, `!score`, `!best`) for safer comparisons in chat-event handlers.
 
 ### Packaging
-- Built release archive at `Releases/1.5.3/KeyMaster.zip`.
+- Built release archive at `Releases/1.5.3/KeyStoneMastery.zip`.
 
 ## [1.5.2] - 2026-03-28
 
@@ -587,7 +596,7 @@ All notable changes to this project will be documented in this file.
 - Reduced label backdrop tint so bar fill remains visible while preserving text contrast.
 
 ### Packaging
-- Built release archive at `Releases/1.5.2/KeyMaster.zip`.
+- Built release archive at `Releases/1.5.2/KeyStoneMastery.zip`.
 
 ## [1.5.1] - 2026-03-28
 
@@ -595,7 +604,7 @@ All notable changes to this project will be documented in this file.
 - Increased Enemy Forces bar label readability by darkening the label backdrop and using outlined text styling.
 
 ### Packaging
-- Built release archive at `Releases/1.5.1/KeyMaster.zip`.
+- Built release archive at `Releases/1.5.1/KeyStoneMastery.zip`.
 
 ## [1.5.0] - 2026-03-28
 
@@ -605,7 +614,7 @@ All notable changes to this project will be documented in this file.
 - Added delayed completion-time refresh to pick up final run time when completion info arrives slightly after the completion event.
 
 ### Packaging
-- Built release archive at `Releases/1.5.0/KeyMaster.zip`.
+- Built release archive at `Releases/1.5.0/KeyStoneMastery.zip`.
 
 ## [1.4.9] - 2026-03-28
 
@@ -614,17 +623,17 @@ All notable changes to this project will be documented in this file.
 - Key-change detection uses a stored keystone snapshot and delayed post-completion checks so rerolled keys are picked up reliably.
 
 ### Packaging
-- Built release archive at `Releases/1.4.9/KeyMaster.zip`.
+- Built release archive at `Releases/1.4.9/KeyStoneMastery.zip`.
 
 ## [1.4.8] - 2026-03-28
 
 ### Fixed
-- Blizzard objective tracker now returns correctly when the KeyMaster overlay is hidden or disabled, while still fading during active Mythic+ overlay use.
+- Blizzard objective tracker now returns correctly when the KeyStoneMastery overlay is hidden or disabled, while still fading during active Mythic+ overlay use.
 - Improved Enemy Forces label readability by adding stronger text contrast over the blue progress bar.
 - Reworked death attribution to track party member death state directly from group units in addition to combat-log events, making hover details more reliable.
 
 ### Packaging
-- Built release archive at `Releases/1.4.8/KeyMaster.zip`.
+- Built release archive at `Releases/1.4.8/KeyStoneMastery.zip`.
 
 ## [1.4.7] - 2026-03-28
 
@@ -634,7 +643,7 @@ All notable changes to this project will be documented in this file.
 - Added slash-command documentation for `/km deaths`, `/km criteria`, and `/km forces`.
 
 ### Packaging
-- Built release archive at `Releases/1.4.7/KeyMaster.zip`.
+- Built release archive at `Releases/1.4.7/KeyStoneMastery.zip`.
 
 ## [1.4.6] - 2026-03-27
 
@@ -643,16 +652,16 @@ All notable changes to this project will be documented in this file.
 - Completion view now zeroes the remaining timer at run end, restoring expected timer reset behavior.
 
 ### Packaging
-- Built release archive at `Releases/1.4.6/KeyMaster.zip`.
+- Built release archive at `Releases/1.4.6/KeyStoneMastery.zip`.
 
 ## [1.4.5] - 2026-03-27
 
 ### Fixed
 - Restored suppression of the default Blizzard objective tracker during Mythic+ using alpha changes instead of frame reparenting.
-- This keeps the custom KeyMaster overlay visible without bringing back the earlier protected-action risk from tracker parent swaps.
+- This keeps the custom KeyStoneMastery overlay visible without bringing back the earlier protected-action risk from tracker parent swaps.
 
 ### Packaging
-- Built release archive at `Releases/1.4.5/KeyMaster.zip`.
+- Built release archive at `Releases/1.4.5/KeyStoneMastery.zip`.
 
 ## [1.4.4] - 2026-03-27
 
@@ -661,7 +670,7 @@ All notable changes to this project will be documented in this file.
 - Added direct bag-link fallback so players with a keystone in their bags are more likely to respond even when Blizzard keystone ownership APIs are late or inconsistent.
 
 ### Packaging
-- Built release archive at `Releases/1.4.4/KeyMaster.zip`.
+- Built release archive at `Releases/1.4.4/KeyStoneMastery.zip`.
 
 ## [1.4.3] - 2026-03-27
 
@@ -670,7 +679,7 @@ All notable changes to this project will be documented in this file.
 - Manual keystone slotting remains available through the default Blizzard UI.
 
 ### Packaging
-- Built release archive at `Releases/1.4.3/KeyMaster.zip`.
+- Built release archive at `Releases/1.4.3/KeyStoneMastery.zip`.
 
 ## [1.4.2] - 2026-03-27
 
@@ -679,7 +688,7 @@ All notable changes to this project will be documented in this file.
 - This hotfix targets the "action only available to Blizzard UI" block message.
 
 ### Packaging
-- Built release archive at `Releases/1.4.2/KeyMaster.zip`.
+- Built release archive at `Releases/1.4.2/KeyStoneMastery.zip`.
 
 ## [1.4.1] - 2026-03-27
 
@@ -688,7 +697,7 @@ All notable changes to this project will be documented in this file.
 - Reduces cases where total deaths are shown but hover details fall back to `Unattributed` for the whole run.
 
 ### Packaging
-- Built release archive at `Releases/1.4.1/KeyMaster.zip`.
+- Built release archive at `Releases/1.4.1/KeyStoneMastery.zip`.
 
 ## [1.4.0] - 2026-03-27
 
@@ -698,7 +707,7 @@ All notable changes to this project will be documented in this file.
 - Added explicit fallback replies (`Keystone unavailable`, `M+ Score unavailable`) to make temporary data gaps clear.
 
 ### Packaging
-- Built release archive at `Releases/1.4.0/KeyMaster.zip`.
+- Built release archive at `Releases/1.4.0/KeyStoneMastery.zip`.
 
 ## [1.3.9] - 2026-03-27
 
@@ -707,7 +716,7 @@ All notable changes to this project will be documented in this file.
 - Relaxed command parsing so requests like `!score?` and `!best.` still trigger replies.
 
 ### Packaging
-- Built release archive at `Releases/1.3.9/KeyMaster.zip`.
+- Built release archive at `Releases/1.3.9/KeyStoneMastery.zip`.
 
 ## [1.3.8] - 2026-03-27
 
@@ -716,7 +725,7 @@ All notable changes to this project will be documented in this file.
 - Death tooltip now shows an `Unattributed` fallback count when Blizzard death totals exist but per-player names were unavailable.
 
 ### Packaging
-- Built release archive at `Releases/1.3.8/KeyMaster.zip`.
+- Built release archive at `Releases/1.3.8/KeyStoneMastery.zip`.
 
 ## [1.3.7] - 2026-03-27
 
@@ -724,7 +733,7 @@ All notable changes to this project will be documented in this file.
 - Enemy Forces bar text now truncates fractional percentages to match Blizzard-style integer display (for example, 85.5% now shows as 85% instead of 86%).
 
 ### Packaging
-- Built release archive at `Releases/1.3.7/KeyMaster.zip`.
+- Built release archive at `Releases/1.3.7/KeyStoneMastery.zip`.
 
 ## [1.3.6] - 2026-03-27
 
@@ -733,7 +742,7 @@ All notable changes to this project will be documented in this file.
 - Death hover hitbox is now more robust and keeps an interactive area even when text width/height reports transient zero values.
 
 ### Packaging
-- Built release archive at `Releases/1.3.6/KeyMaster.zip`.
+- Built release archive at `Releases/1.3.6/KeyStoneMastery.zip`.
 
 ## [1.3.5] - 2026-03-27
 
@@ -743,7 +752,7 @@ All notable changes to this project will be documented in this file.
 - Retained dungeon total-unit conversion only as fallback when criteria data is incomplete.
 
 ### Packaging
-- Built release archive at `Releases/1.3.5/KeyMaster.zip`.
+- Built release archive at `Releases/1.3.5/KeyStoneMastery.zip`.
 
 ## [1.3.4] - 2026-03-27
 
@@ -753,7 +762,7 @@ All notable changes to this project will be documented in this file.
 - Added `/km forces` debug command to print live Enemy Forces mapping details (mapID, known total, cached total, criterion raw values).
 
 ### Packaging
-- Built release archive at `Releases/1.3.4/KeyMaster.zip`.
+- Built release archive at `Releases/1.3.4/KeyStoneMastery.zip`.
 
 ## [1.3.3] - 2026-03-27
 
@@ -762,7 +771,7 @@ All notable changes to this project will be documented in this file.
 - Improved weighted Enemy Forces fallback: when weighted quantity is absolute progress with a non-100 total, percent is now computed as `quantity / total * 100`.
 
 ### Packaging
-- Built release archive at `Releases/1.3.3/KeyMaster.zip`.
+- Built release archive at `Releases/1.3.3/KeyStoneMastery.zip`.
 
 ## [1.3.2] - 2026-03-27
 
@@ -771,7 +780,7 @@ All notable changes to this project will be documented in this file.
 - Criteria debug now uses direct Blizzard API calls within the command handler, preventing nil-function lookup errors.
 
 ### Packaging
-- Built release archive at `Releases/1.3.2/KeyMaster.zip`.
+- Built release archive at `Releases/1.3.2/KeyStoneMastery.zip`.
 
 ## [1.3.1] - 2026-03-27
 
@@ -781,7 +790,7 @@ All notable changes to this project will be documented in this file.
 - Enemy Forces criterion selection is now deterministic and confidence-based among exact-name weighted candidates only.
 
 ### Packaging
-- Built release archive at `Releases/1.3.1/KeyMaster.zip`.
+- Built release archive at `Releases/1.3.1/KeyStoneMastery.zip`.
 
 ## [1.3.0] - 2026-03-27
 
@@ -790,7 +799,7 @@ All notable changes to this project will be documented in this file.
 - Promoted latest fixes into 1.3.0 under the new versioning scheme.
 
 ### Packaging
-- Built release archive at `Releases/1.3.0/KeyMaster.zip`.
+- Built release archive at `Releases/1.3.0/KeyStoneMastery.zip`.
 
 ## [1.2.14] - 2026-03-27
 
@@ -800,7 +809,7 @@ All notable changes to this project will be documented in this file.
 - Percent parser now tolerates WoW color formatting and spacing variants like `88 %`, reducing false fallback to bad values.
 
 ### Packaging
-- Built release archive at `Releases/1.2.14/KeyMaster.zip`.
+- Built release archive at `Releases/1.2.14/KeyStoneMastery.zip`.
 
 ## [1.2.13] - 2026-03-27
 
@@ -810,7 +819,7 @@ All notable changes to this project will be documented in this file.
 - Per-player death attribution now records while Mythic+ is actively detected (not only when the start-event flag is set), preventing missed capture from event ordering edge cases.
 
 ### Packaging
-- Built release archive at `Releases/1.2.13/KeyMaster.zip`.
+- Built release archive at `Releases/1.2.13/KeyStoneMastery.zip`.
 
 ## [1.2.12] - 2026-03-27
 
@@ -818,7 +827,7 @@ All notable changes to this project will be documented in this file.
 - `/km criteria` now always prints a status header and wraps debug collection in `pcall`, so failures are shown as chat errors instead of appearing to do nothing.
 
 ### Packaging
-- Built release archive at `Releases/1.2.12/KeyMaster.zip`.
+- Built release archive at `Releases/1.2.12/KeyStoneMastery.zip`.
 
 ## [1.2.11] - 2026-03-27
 
@@ -830,7 +839,7 @@ All notable changes to this project will be documented in this file.
 - Added `/km criteria` debug command to print raw scenario criteria values (name, weighted flag, quantity, total, quantityString) for fast in-run diagnosis.
 
 ### Packaging
-- Built release archive at `Releases/1.2.11/KeyMaster.zip`.
+- Built release archive at `Releases/1.2.11/KeyStoneMastery.zip`.
 
 ## [1.2.10] - 2026-03-27
 
@@ -842,7 +851,7 @@ All notable changes to this project will be documented in this file.
 - Added `/km deaths` to print per-player death attribution captured during the current/recent run.
 
 ### Packaging
-- Built release archive at `Releases/1.2.10/KeyMaster.zip`.
+- Built release archive at `Releases/1.2.10/KeyStoneMastery.zip`.
 
 ## [1.2.9] - 2026-03-26
 
@@ -855,7 +864,7 @@ All notable changes to this project will be documented in this file.
 - Group death attribution now uses explicit combat-log player and affiliation flags for more reliable party-member tracking.
 
 ### Packaging
-- Built release archive at `Releases/1.2.9/KeyMaster.zip`.
+- Built release archive at `Releases/1.2.9/KeyStoneMastery.zip`.
 
 ## [1.2.8] - 2026-03-26
 
@@ -867,7 +876,7 @@ All notable changes to this project will be documented in this file.
 - Death breakdown is preserved briefly on the completed-run summary as well.
 
 ### Packaging
-- Built release archive at `Releases/1.2.8/KeyMaster.zip`.
+- Built release archive at `Releases/1.2.8/KeyStoneMastery.zip`.
 
 ## [1.2.7] - 2026-03-26
 
@@ -876,7 +885,7 @@ All notable changes to this project will be documented in this file.
 - This prevents the completion display from falling back to `00:00` when the live world timer resets after dungeon completion.
 
 ### Packaging
-- Built release archive at `Releases/1.2.7/KeyMaster.zip`.
+- Built release archive at `Releases/1.2.7/KeyStoneMastery.zip`.
 
 ## [1.2.6] - 2026-03-26
 
@@ -885,7 +894,7 @@ All notable changes to this project will be documented in this file.
 - This prevents incorrect early 100% spikes caused by selecting non-forces criteria with ratio-style values.
 
 ### Packaging
-- Built release archive at `Releases/1.2.6/KeyMaster.zip`.
+- Built release archive at `Releases/1.2.6/KeyStoneMastery.zip`.
 
 ## [1.2.5] - 2026-03-26
 
@@ -898,7 +907,7 @@ All notable changes to this project will be documented in this file.
 - Added a short post-completion display window showing final elapsed time, remaining time, and key result.
 
 ### Packaging
-- Built release archive at `Releases/1.2.5/KeyMaster.zip`.
+- Built release archive at `Releases/1.2.5/KeyStoneMastery.zip`.
 
 ## [1.2.4] - 2026-03-26
 
@@ -907,7 +916,7 @@ All notable changes to this project will be documented in this file.
 - Replaced first-match weighted detection with scored candidate selection using name, percent text, weighted flag, and quantity metadata.
 
 ### Packaging
-- Built release archive at `Releases/1.2.4/KeyMaster.zip`.
+- Built release archive at `Releases/1.2.4/KeyStoneMastery.zip`.
 
 ## [1.2.3] - 2026-03-26
 
@@ -920,7 +929,7 @@ All notable changes to this project will be documented in this file.
 - Refactored UI drawing into a shared `RenderMythicUI()` routine used by both event refreshes and periodic timer refreshes.
 
 ### Packaging
-- Built release archive at `Releases/1.2.3/KeyMaster.zip`.
+- Built release archive at `Releases/1.2.3/KeyStoneMastery.zip`.
 
 ## [1.2.2] - 2026-03-26
 
@@ -935,14 +944,14 @@ All notable changes to this project will be documented in this file.
 - Challenge mode flag is now cleared on world transitions to prevent stale state.
 
 ### Packaging
-- Built release archive at `Releases/1.2.2/KeyMaster.zip`.
+- Built release archive at `Releases/1.2.2/KeyStoneMastery.zip`.
 
 ## [1.2.1] - 2026-03-26
 
 ### Added
-- Added `/km status` to show current KeyMaster UI state (enabled, hidden, tracker-hide mode, lock state, scale, and anchor).
-- Added `/km ui restore` to re-enable and reset the KeyMaster UI to a known-good default position.
-- Added `Unlock UI` and `Lock UI` buttons to the KeyMaster settings panel.
+- Added `/km status` to show current KeyStoneMastery UI state (enabled, hidden, tracker-hide mode, lock state, scale, and anchor).
+- Added `/km ui restore` to re-enable and reset the KeyStoneMastery UI to a known-good default position.
+- Added `Unlock UI` and `Lock UI` buttons to the KeyStoneMastery settings panel.
 - Added a `Hide Blizzard objectives during Mythic+` setting (enabled by default).
 
 ### Changed
@@ -951,22 +960,22 @@ All notable changes to this project will be documented in this file.
 - Improved slash/help messaging for positioning and UI recovery.
 
 ### Packaging
-- Built release archive at `Releases/1.2.1/KeyMaster.zip`.
+- Built release archive at `Releases/1.2.1/KeyStoneMastery.zip`.
 
 ## [1.2.0] - 2026-03-26
 
 ### Added
-- Added a live Mythic+ overlay UI to KeyMaster with a transparent black panel and white text.
+- Added a live Mythic+ overlay UI to KeyStoneMastery with a transparent black panel and white text.
 - Added active dungeon header, affix summary, elapsed timer, and +2/+3 chest breakpoint lines.
 - Added scenario objective tracking, death counter display, and an Enemy Forces progress bar.
 - Added `/km` UI controls for lock, unlock, hide, show, reset, and scale.
-- Added a KeyMaster settings option to disable the custom Mythic+ UI and fall back to Blizzard's default Mythic+ interface.
+- Added a KeyStoneMastery settings option to disable the custom Mythic+ UI and fall back to Blizzard's default Mythic+ interface.
 
 ### Changed
 - Styled the Enemy Forces bar with a blue progress fill and centered white percentage text.
 
 ### Packaging
-- Built release archive at `Releases/1.2.0/KeyMaster.zip`.
+- Built release archive at `Releases/1.2.0/KeyStoneMastery.zip`.
 
 ## [1.1.9] - 2026-03-26
 
@@ -975,7 +984,7 @@ All notable changes to this project will be documented in this file.
 - Fixed latent nil reference to removed `KEYSTONE_ITEM_ID` constant in synthetic keystone link builder.
 
 ### Packaging
-- Built release archive at `Releases/1.1.9/KeyMaster.zip`.
+- Built release archive at `Releases/1.1.9/KeyStoneMastery.zip`.
 
 ## [1.1.8] - 2026-03-26
 
