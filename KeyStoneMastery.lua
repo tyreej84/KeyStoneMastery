@@ -1,5 +1,7 @@
 local addonName = ...
 local KSMNS = _G.KeyStoneMasteryNS or {}
+local addonTooltip = KSMNS.UIIsolation.GetTooltip()
+local HideAddonTooltip = KSMNS.UIIsolation.HideTooltip
 local SendChatMessage = SendChatMessage
 
 local strtrim = strtrim or function(s) return (s:gsub("^%s*(.-)%s*$", "%1")) end
@@ -34,7 +36,6 @@ local RUNTIME_EVENTS = {
     "CHALLENGE_MODE_RESET",
     "SCENARIO_UPDATE",
     "SCENARIO_CRITERIA_UPDATE",
-    "COMBAT_LOG_EVENT_UNFILTERED",
     "GROUP_ROSTER_UPDATE",
     "UNIT_FLAGS",
     "PLAYER_DEAD",
@@ -52,7 +53,6 @@ local runtimeState = {
     scenarioTimerHooked = false,
     runtimeEventsRegistered = false,
     bootstrapEventsRegistered = false,
-    bootstrapRetryScheduled = false,
 }
 local BroadcastOwnGuildSnapshot
 local MANUAL_EXPANSION_MAX_LEVEL = 90
@@ -68,9 +68,8 @@ local function SafeRegisterFrameEvent(eventName)
         return true
     end
 
-    -- Event registration is only invoked from the addon's initial loading
-    -- execution path. Keep it direct: wrapping RegisterEvent in pcall gives the
-    -- closure an insecure call path and can trigger ADDON_ACTION_FORBIDDEN.
+    -- Register supported events at startup. Restricted combat-log events are
+    -- deliberately excluded; changing the call wrapper does not grant access.
     frame:RegisterEvent(eventName)
     return frame:IsEventRegistered(eventName)
 end
@@ -102,31 +101,6 @@ local function RegisterBootstrapEvents()
     runtimeState.bootstrapEventsRegistered = allRegistered
     return allRegistered
 end
-
-local function ScheduleBootstrapRegistration(delaySeconds)
-    if runtimeState.bootstrapEventsRegistered then
-        return
-    end
-
-    if not C_Timer or type(C_Timer.After) ~= "function" then
-        RegisterBootstrapEvents()
-        return
-    end
-
-    if runtimeState.bootstrapRetryScheduled then
-        return
-    end
-
-    runtimeState.bootstrapRetryScheduled = true
-    C_Timer.After(delaySeconds or 0, function()
-        runtimeState.bootstrapRetryScheduled = false
-        if not RegisterBootstrapEvents() then
-            ScheduleBootstrapRegistration(1)
-        end
-    end)
-end
-
-ScheduleBootstrapRegistration(0)
 
 local function GetMostRecentWeeklyResetEpoch(nowEpoch)
     local now = tonumber(nowEpoch)
@@ -391,7 +365,7 @@ local function ResetEnemyForcesCalibration()
 end
 
 local function NormalizePlayerDisplayName(name, realm)
-    if type(name) ~= "string" or name == "" then
+    if (issecretvalue and issecretvalue(name)) or type(name) ~= "string" or name == "" then
         return "Unknown"
     end
 
@@ -439,10 +413,13 @@ local function RefreshGroupMemberGUIDIndex()
 
     for _, unitToken in ipairs(groupUnits) do
         if UnitExists and UnitExists(unitToken) then
-            local unitGUID = UnitGUID and UnitGUID(unitToken) or nil
-            if type(unitGUID) == "string" and unitGUID ~= "" then
+            local unitGUID = UnitGUID(unitToken)
+            if (not issecretvalue or not issecretvalue(unitGUID))
+                and type(unitGUID) == "string" and unitGUID ~= "" then
                 local unitName, unitRealm = UnitName(unitToken)
-                guidIndex[unitGUID] = NormalizePlayerDisplayName(unitName, unitRealm)
+                if not issecretvalue or not issecretvalue(unitName) then
+                    guidIndex[unitGUID] = NormalizePlayerDisplayName(unitName, unitRealm)
+                end
             end
         end
     end
@@ -470,14 +447,20 @@ local function SyncGroupDeathLogFromUnits()
 
     for _, unitToken in ipairs(groupUnits) do
         if UnitExists and UnitExists(unitToken) then
-            local unitGUID = UnitGUID and UnitGUID(unitToken) or nil
-            if type(unitGUID) == "string" and unitGUID ~= "" then
-                local isDead = UnitIsDeadOrGhost and UnitIsDeadOrGhost(unitToken)
-                if isDead then
+            local unitGUID = UnitGUID(unitToken)
+            if (not issecretvalue or not issecretvalue(unitGUID))
+                and type(unitGUID) == "string" and unitGUID ~= "" then
+                local isDead = UnitIsDeadOrGhost(unitToken)
+                if issecretvalue and issecretvalue(isDead) then
+                    -- A temporarily hidden state is not evidence of resurrection.
+                    nextDeadUnitState[unitGUID] = ui.deadUnitState[unitGUID]
+                elseif isDead then
                     nextDeadUnitState[unitGUID] = true
                     if not ui.deadUnitState[unitGUID] then
                         local unitName, unitRealm = UnitName(unitToken)
-                        RecordDeathEntry(NormalizePlayerDisplayName(unitName, unitRealm))
+                        if not issecretvalue or not issecretvalue(unitName) then
+                            RecordDeathEntry(NormalizePlayerDisplayName(unitName, unitRealm))
+                        end
                     end
                 end
             end
@@ -485,74 +468,6 @@ local function SyncGroupDeathLogFromUnits()
     end
 
     ui.deadUnitState = nextDeadUnitState
-end
-
-local function ResolveCombatLogPlayerName(destGUID, destName)
-    if type(destGUID) == "string" and ui.groupMemberByGUID and ui.groupMemberByGUID[destGUID] then
-        return ui.groupMemberByGUID[destGUID]
-    end
-
-    if GetPlayerInfoByGUID and type(destGUID) == "string" then
-        local _, _, _, _, _, resolvedName, resolvedRealm = GetPlayerInfoByGUID(destGUID)
-        if type(resolvedName) == "string" and resolvedName ~= "" then
-            return NormalizePlayerDisplayName(resolvedName, resolvedRealm)
-        end
-    end
-
-    if type(destName) == "string" and destName ~= "" then
-        return NormalizePlayerDisplayName(destName)
-    end
-
-    return "Unknown"
-end
-
-local function IsPlayerGUID(guid)
-    return type(guid) == "string" and guid:match("^Player%-%d+%-%x+") ~= nil
-end
-
-local function IsTrackedGroupDeath(destGUID, destFlags)
-    if IsPlayerGUID(destGUID) then
-        return true
-    end
-
-    if type(destFlags) ~= "number" then
-        return false
-    end
-
-    local bitBand = (bit and bit.band) or (bit32 and bit32.band)
-    if bitBand and COMBATLOG_OBJECT_TYPE_PLAYER and COMBATLOG_OBJECT_AFFILIATION_MINE and COMBATLOG_OBJECT_AFFILIATION_PARTY and COMBATLOG_OBJECT_AFFILIATION_RAID then
-        local isPlayer = bitBand(destFlags, COMBATLOG_OBJECT_TYPE_PLAYER) > 0
-        local isMine = bitBand(destFlags, COMBATLOG_OBJECT_AFFILIATION_MINE) > 0
-        local isParty = bitBand(destFlags, COMBATLOG_OBJECT_AFFILIATION_PARTY) > 0
-        local isRaid = bitBand(destFlags, COMBATLOG_OBJECT_AFFILIATION_RAID) > 0
-        return isPlayer and (isMine or isParty or isRaid)
-    end
-
-    if CombatLog_Object_IsA then
-        local isGroup = CombatLog_Object_IsA(destFlags, COMBATLOG_FILTER_GROUP)
-        local isPlayerType = CombatLog_Object_IsA(destFlags, COMBATLOG_FILTER_TYPE_PLAYER)
-        return isGroup and isPlayerType
-    end
-
-    return false
-end
-
-local function RecordGroupDeath(destGUID, destName, destFlags)
-    if not ShouldTrackDeathAttribution() then
-        return
-    end
-
-    if type(destGUID) == "string" and ui.groupMemberByGUID and ui.groupMemberByGUID[destGUID] then
-        RecordDeathEntry(ui.groupMemberByGUID[destGUID])
-        return
-    end
-
-    if not IsTrackedGroupDeath(destGUID, destFlags) then
-        return
-    end
-
-    local playerName = ResolveCombatLogPlayerName(destGUID, destName)
-    RecordDeathEntry(playerName)
 end
 
 local function BuildDeathTooltipLines(deathLog)
@@ -616,21 +531,21 @@ local function ShowDeathTooltip(owner)
         return
     end
 
-    GameTooltip:Hide()
-    GameTooltip:ClearLines()
-    GameTooltip:SetOwner(owner, "ANCHOR_RIGHT")
-    GameTooltip:AddLine(string.format("Deaths: %d", totalDeaths), 1, 1, 1)
+    addonTooltip:Hide()
+    addonTooltip:ClearLines()
+    addonTooltip:SetOwner(owner, "ANCHOR_RIGHT")
+    addonTooltip:AddLine(string.format("Deaths: %d", totalDeaths), 1, 1, 1)
 
     if #deathEntries == 0 then
-        GameTooltip:Show()
+        addonTooltip:Show()
         return
     end
 
     for _, entry in ipairs(deathEntries) do
-        GameTooltip:AddDoubleLine(entry.name, tostring(entry.count), 1, 1, 1, 1, 0.82, 0)
+        addonTooltip:AddDoubleLine(entry.name, tostring(entry.count), 1, 1, 1, 1, 0.82, 0)
     end
 
-    GameTooltip:Show()
+    addonTooltip:Show()
 end
 
 local function UpdateDeathTooltipArea()
@@ -1078,7 +993,8 @@ local function TryHookScenarioTimerUpdate()
     end
 
     hooksecurefunc(challengeModeBlock, "UpdateTime", function(_, elapsedTime)
-        if type(elapsedTime) == "number" and elapsedTime >= 0 and elapsedTime < 86400 then
+        if (not issecretvalue or not issecretvalue(elapsedTime))
+            and type(elapsedTime) == "number" and elapsedTime >= 0 and elapsedTime < 86400 then
             ui.lastScenarioElapsedSeconds = elapsedTime
         end
     end)
@@ -2413,7 +2329,6 @@ BuildRunStateContext = function()
         ResetDeathLog = ResetDeathLog,
         ResetEnemyForcesCalibration = ResetEnemyForcesCalibration,
         SyncGroupDeathLogFromUnits = SyncGroupDeathLogFromUnits,
-        RecordGroupDeath = RecordGroupDeath,
         FlushDeferredChatMessages = FlushDeferredChatMessages,
         RefreshMythicUI = RefreshMythicUI,
         RefreshKSMWindowIfVisible = RefreshKSMWindowIfVisible,
@@ -2980,55 +2895,14 @@ local function SetMythicUIEnabled(isEnabled)
     RefreshMythicUI()
 end
 
-local function EnsureHiddenTrackerFrame()
-    if ui.hiddenTrackerFrame then
-        return ui.hiddenTrackerFrame
-    end
-
-    ui.hiddenTrackerFrame = CreateFrame("Frame", nil, UIParent)
-    ui.hiddenTrackerFrame:Hide()
-    return ui.hiddenTrackerFrame
-end
-
 local function UpdateBlizzardTrackerVisibility(shouldSuppress)
     local suppress = shouldSuppress == true
-
-    if ui.trackerSuppressed == suppress then
-        return
-    end
-
-    if not ObjectiveTrackerFrame then
+    if KSMNS.UIIsolation.SetTrackerSuppressed(suppress) then
         ui.trackerSuppressed = suppress
-        return
-    end
-
-    if (InCombatLockdown and InCombatLockdown()) or (UnitAffectingCombat and UnitAffectingCombat("player")) then
-        -- Can't reparent protected frames in combat; flag so PLAYER_REGEN_ENABLED retries.
+        ui.pendingTrackerSuppress = nil
+    else
         ui.pendingTrackerSuppress = suppress
-        return
     end
-    ui.pendingTrackerSuppress = nil
-
-    if suppress then
-        local hiddenTrackerFrame = EnsureHiddenTrackerFrame()
-        if ObjectiveTrackerFrame:GetParent() ~= hiddenTrackerFrame then
-            ObjectiveTrackerFrame:SetParent(hiddenTrackerFrame)
-        end
-        hiddenTrackerFrame:Hide()
-        ui.trackerSuppressed = true
-        return
-    end
-
-    if ObjectiveTrackerFrame:GetParent() ~= UIParent then
-        ObjectiveTrackerFrame:SetParent(UIParent)
-    end
-
-    ObjectiveTrackerFrame:SetAlpha(1)
-    if ObjectiveTrackerBlocksFrame and ObjectiveTrackerBlocksFrame.SetAlpha then
-        ObjectiveTrackerBlocksFrame:SetAlpha(1)
-    end
-
-    ui.trackerSuppressed = false
 end
 
 local function SetMythicFrameLocked(isLocked)
@@ -3591,7 +3465,7 @@ local function CreateMythicUI()
     deathHitArea:SetScript("OnEnter", function(self)
         ShowDeathTooltip(self)
     end)
-    deathHitArea:SetScript("OnLeave", GameTooltip_Hide)
+    deathHitArea:SetScript("OnLeave", HideAddonTooltip)
     ui.deathHitArea = deathHitArea
 
     ui.dragLabel = CreateLine(mythicFrame, 11)
@@ -3709,33 +3583,6 @@ local function HookChallengesFrame()
 
     ChallengesKeystoneFrame:HookScript("OnShow", TryAutoSlotKeystone)
     ui.challengesFrameHooked = true
-end
-
-local function HookObjectiveTrackerFrame()
-    if ui.objectiveTrackerFrameHooked or not ObjectiveTrackerFrame then
-        return
-    end
-
-    local originalShow = ObjectiveTrackerFrame.Show
-    ObjectiveTrackerFrame.Show = function(self)
-        local settings = InitializeDatabase().ui
-        local shouldHideTracker = settings.enabled
-            and not settings.hidden
-            and IsInMythicDungeonInstance()
-            and IsChallengeModeRunActive()
-            and (settings.hideTrackerInMythicPlus ~= false)
-
-        if shouldHideTracker then
-            UpdateBlizzardTrackerVisibility(true)
-            return
-        end
-
-        if type(originalShow) == "function" then
-            originalShow(self)
-        end
-    end
-
-    ui.objectiveTrackerFrameHooked = true
 end
 
 local function PrintEnemyForcesDebugSummary()
@@ -4456,15 +4303,15 @@ local function EnsureKSMGuildRow(index)
     teleportButton.label = label
 
     teleportButton:SetScript("OnEnter", function(self)
-        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        addonTooltip:SetOwner(self, "ANCHOR_RIGHT")
         if self.spellID then
-            GameTooltip:SetSpellByID(self.spellID)
+            addonTooltip:SetSpellByID(self.spellID)
         else
-            GameTooltip:AddLine("Portal unavailable", 1, 1, 1)
-            GameTooltip:Show()
+            addonTooltip:AddLine("Portal unavailable", 1, 1, 1)
+            addonTooltip:Show()
         end
     end)
-    teleportButton:SetScript("OnLeave", GameTooltip_Hide)
+    teleportButton:SetScript("OnLeave", HideAddonTooltip)
     row.teleportButton = teleportButton
 
     ui.ksmGuildRows[index] = row
@@ -4535,15 +4382,15 @@ local function EnsureKSMRecentRow(index)
     teleportButton.label = label
 
     teleportButton:SetScript("OnEnter", function(self)
-        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        addonTooltip:SetOwner(self, "ANCHOR_RIGHT")
         if self.spellID then
-            GameTooltip:SetSpellByID(self.spellID)
+            addonTooltip:SetSpellByID(self.spellID)
         else
-            GameTooltip:AddLine("Portal unavailable", 1, 1, 1)
-            GameTooltip:Show()
+            addonTooltip:AddLine("Portal unavailable", 1, 1, 1)
+            addonTooltip:Show()
         end
     end)
-    teleportButton:SetScript("OnLeave", GameTooltip_Hide)
+    teleportButton:SetScript("OnLeave", HideAddonTooltip)
     row.teleportButton = teleportButton
 
     ui.ksmRecentsRows[index] = row
@@ -4608,15 +4455,15 @@ local function EnsureKSMWarbandRow(index)
     teleportButton.label = label
 
     teleportButton:SetScript("OnEnter", function(self)
-        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        addonTooltip:SetOwner(self, "ANCHOR_RIGHT")
         if self.spellID then
-            GameTooltip:SetSpellByID(self.spellID)
+            addonTooltip:SetSpellByID(self.spellID)
         else
-            GameTooltip:AddLine("Portal unavailable", 1, 1, 1)
-            GameTooltip:Show()
+            addonTooltip:AddLine("Portal unavailable", 1, 1, 1)
+            addonTooltip:Show()
         end
     end)
-    teleportButton:SetScript("OnLeave", GameTooltip_Hide)
+    teleportButton:SetScript("OnLeave", HideAddonTooltip)
     row.teleportButton = teleportButton
 
     ui.ksmWarbandRows[index] = row
@@ -4696,20 +4543,20 @@ local function EnsureKSMPartyRow(index)
     row.dungeonText = dungeonText
 
     keyTile:SetScript("OnEnter", function(self)
-        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-        GameTooltip:ClearLines()
-        GameTooltip:AddLine(self.dungeonLabel or "No key", 1, 1, 1)
+        addonTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        addonTooltip:ClearLines()
+        addonTooltip:AddLine(self.dungeonLabel or "No key", 1, 1, 1)
         if self.keyLevel and self.keyLevel > 0 then
-            GameTooltip:AddLine(string.format("Weekly Key: +%d", self.keyLevel), 1, 0.82, 0.2)
+            addonTooltip:AddLine(string.format("Weekly Key: +%d", self.keyLevel), 1, 0.82, 0.2)
         else
-            GameTooltip:AddLine("Weekly Key: None", 0.8, 0.8, 0.8)
+            addonTooltip:AddLine("Weekly Key: None", 0.8, 0.8, 0.8)
         end
         if self.spellID then
-            GameTooltip:AddLine(IsPortalSpellKnown(self.spellID) and "Click to cast portal" or "Portal not learned", 0.7, 0.82, 1)
+            addonTooltip:AddLine(IsPortalSpellKnown(self.spellID) and "Click to cast portal" or "Portal not learned", 0.7, 0.82, 1)
         end
-        GameTooltip:Show()
+        addonTooltip:Show()
     end)
-    keyTile:SetScript("OnLeave", GameTooltip_Hide)
+    keyTile:SetScript("OnLeave", HideAddonTooltip)
     row.keyTile = keyTile
 
     ui.ksmPartyRows[index] = row
@@ -5045,12 +4892,12 @@ function CreateKSMWindow()
         end
     end)
     vaultButton:SetScript("OnEnter", function(self)
-        GameTooltip:SetOwner(self, "ANCHOR_TOP")
-        GameTooltip:SetText("Open Great Vault", 1, 1, 1)
-        GameTooltip:Show()
+        addonTooltip:SetOwner(self, "ANCHOR_TOP")
+        addonTooltip:SetText("Open Great Vault", 1, 1, 1)
+        addonTooltip:Show()
     end)
     vaultButton:SetScript("OnLeave", function(self)
-        GameTooltip_Hide()
+        HideAddonTooltip()
     end)
 
     ui.ksmVaultButton = vaultButton
@@ -5583,7 +5430,6 @@ function PerformLoginInitialization()
     CreateMythicUI()
     RegisterSettingsPanel()
     TryHookScenarioTimerUpdate()
-    HookObjectiveTrackerFrame()
     if C_ChatInfo and C_ChatInfo.RegisterAddonMessagePrefix then
         pcall(C_ChatInfo.RegisterAddonMessagePrefix, KSM_ADDON_PREFIX)
         pcall(C_ChatInfo.RegisterAddonMessagePrefix, ASTRAL_KEYS_PREFIX)
@@ -5737,11 +5583,6 @@ frame:SetScript("OnEvent", function(_, event, ...)
         return
     end
 
-    if runStateModule and runStateModule.HandleCombatLogEvent
-        and runStateModule.HandleCombatLogEvent(BuildRunStateContext(), event) then
-        return
-    end
-
     if runStateModule and runStateModule.HandleGroupStateEvent
         and runStateModule.HandleGroupStateEvent(BuildRunStateContext(), event) then
         return
@@ -5755,11 +5596,7 @@ frame:SetScript("OnEvent", function(_, event, ...)
     HandleChatMessage(event, ...)
 end)
 
--- Register bootstrap and runtime events directly after the event handler is
--- set. ScheduleBootstrapRegistration uses C_Timer.After, so bootstrap events
--- must be registered here to avoid missing ADDON_LOADED/PLAYER_LOGIN.
--- Runtime registration must also happen in the initial addon-loading execution
--- context. RegisterEvent can become protected once ADDON_LOADED begins dispatching.
+-- Register supported events once the handler is ready, before login dispatch.
 RegisterBootstrapEvents()
 RegisterRuntimeEventsOnce()
 

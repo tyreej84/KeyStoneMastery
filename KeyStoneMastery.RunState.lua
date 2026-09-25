@@ -242,18 +242,6 @@ function RunState.HandleChallengeLifecycleEvent(ctx, event)
     return false
 end
 
-function RunState.HandleCombatLogEvent(ctx, event)
-    if event ~= "COMBAT_LOG_EVENT_UNFILTERED" then
-        return false
-    end
-
-    local _, subEvent, _, _, _, _, _, destGUID, destName, destFlags = CombatLogGetCurrentEventInfo()
-    if subEvent == "UNIT_DIED" then
-        ctx.RecordGroupDeath(destGUID, destName, destFlags)
-    end
-    return true
-end
-
 function RunState.HandleGroupStateEvent(ctx, event)
     if event ~= "GROUP_ROSTER_UPDATE" and event ~= "UNIT_FLAGS" and event ~= "PLAYER_DEAD" then
         return false

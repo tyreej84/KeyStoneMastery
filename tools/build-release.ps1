@@ -1,5 +1,5 @@
 param(
-    [string]$Version = "2.0.6"
+    [string]$Version = "2.0.7"
 )
 
 $ErrorActionPreference = "Stop"
@@ -32,6 +32,7 @@ $files = @(
     "KeyStoneMastery.RunState.lua",
     "KeyStoneMastery.Sync.lua",
     "KeyStoneMastery.UI.KSM.lua",
+    "KeyStoneMastery.UIIsolation.lua",
     "KeyStoneMastery.Utils.lua",
     "KeyStoneMastery.toc",
     "LICENSE"

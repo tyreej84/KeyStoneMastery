@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.7] - 2026-09-24
+
+### Fixed
+- Removed restricted combat-log event registration, allowing startup to finish registering group and chat events.
+- Kept death attribution through group-unit state checks and skipped restricted identity/death values.
+- Stopped replacing the objective tracker's Show method and reparenting its frames. Tracker suppression now preserves its original alpha and defers changes during combat.
+- Moved all addon tooltips to a private tooltip so addon hover handlers do not reuse Blizzard's world-map widget container.
+- Guarded restricted scenario-timer values before comparing or caching them.
+
+### Validation
+- Added mocked startup, tracker, tooltip, and death-tracking regressions. Native UI taint behavior still requires in-game verification after reloading the updated addon.
+
 ## [2.0.6] - 2026-09-24
 
 ### Changed

@@ -4,6 +4,9 @@ if type(ns) ~= "table" then
     _G.KeyStoneMasteryNS = ns
 end
 
+local addonTooltip = ns.UIIsolation.GetTooltip()
+local HideAddonTooltip = ns.UIIsolation.HideTooltip
+
 local KSM = {}
 ns.KSM = KSM
 
@@ -291,15 +294,15 @@ function KSM.RefreshMainTab(ctx)
                 end
 
                 local name, description = GetAffixDisplayInfo(self.affixID)
-                GameTooltip:SetOwner(self, "ANCHOR_TOP")
-                GameTooltip:ClearLines()
-                GameTooltip:AddLine(name or string.format("Affix %d", self.affixID), 1, 1, 1)
+                addonTooltip:SetOwner(self, "ANCHOR_TOP")
+                addonTooltip:ClearLines()
+                addonTooltip:AddLine(name or string.format("Affix %d", self.affixID), 1, 1, 1)
                 if type(description) == "string" and description ~= "" then
-                    GameTooltip:AddLine(description, 0.85, 0.85, 0.85, true)
+                    addonTooltip:AddLine(description, 0.85, 0.85, 0.85, true)
                 end
-                GameTooltip:Show()
+                addonTooltip:Show()
             end)
-            button:SetScript("OnLeave", GameTooltip_Hide)
+            button:SetScript("OnLeave", HideAddonTooltip)
 
             ui.ksmAffixButtons[index] = button
         end
@@ -470,25 +473,25 @@ function KSM.RefreshMainTab(ctx)
             button.levelText = levelText
 
             button:SetScript("OnEnter", function(self)
-                GameTooltip:SetOwner(self, "ANCHOR_TOP")
-                GameTooltip:ClearLines()
-                GameTooltip:AddLine(self.mapName or "Dungeon", 1, 1, 1)
+                addonTooltip:SetOwner(self, "ANCHOR_TOP")
+                addonTooltip:ClearLines()
+                addonTooltip:AddLine(self.mapName or "Dungeon", 1, 1, 1)
                 if self.bestLevel then
-                    GameTooltip:AddLine(string.format("Season Best: +%d", self.bestLevel), 1, 0.82, 0.2)
+                    addonTooltip:AddLine(string.format("Season Best: +%d", self.bestLevel), 1, 0.82, 0.2)
                 else
-                    GameTooltip:AddLine("Season Best: None", 0.8, 0.8, 0.8)
+                    addonTooltip:AddLine("Season Best: None", 0.8, 0.8, 0.8)
                 end
                 if self.bestScore then
-                    GameTooltip:AddLine(string.format("Dungeon Score: %d", floor(self.bestScore + 0.5)), 0.8, 0.95, 1)
+                    addonTooltip:AddLine(string.format("Dungeon Score: %d", floor(self.bestScore + 0.5)), 0.8, 0.95, 1)
                 end
                 if not self.spellID then
-                    GameTooltip:AddLine("Portal spell not configured", 0.85, 0.3, 0.3)
+                    addonTooltip:AddLine("Portal spell not configured", 0.85, 0.3, 0.3)
                 else
-                    GameTooltip:AddLine(self.known and "Click to cast portal" or "Portal locked", self.known and 0.5 or 0.8, self.known and 1 or 0.2, self.known and 0.5 or 0.2)
+                    addonTooltip:AddLine(self.known and "Click to cast portal" or "Portal locked", self.known and 0.5 or 0.8, self.known and 1 or 0.2, self.known and 0.5 or 0.2)
                 end
-                GameTooltip:Show()
+                addonTooltip:Show()
             end)
-            button:SetScript("OnLeave", GameTooltip_Hide)
+            button:SetScript("OnLeave", HideAddonTooltip)
 
             ui.ksmPortalButtons[index] = button
         end
@@ -1388,12 +1391,12 @@ function KSM.RefreshGuildTab(ctx)
                 if not self.inviteName then
                     return
                 end
-                GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-                GameTooltip:AddLine(GetShortDisplayName(self.inviteName), 1, 1, 1)
-                GameTooltip:AddLine("Right-click to invite", 0.75, 0.85, 1)
-                GameTooltip:Show()
+                addonTooltip:SetOwner(self, "ANCHOR_RIGHT")
+                addonTooltip:AddLine(GetShortDisplayName(self.inviteName), 1, 1, 1)
+                addonTooltip:AddLine("Right-click to invite", 0.75, 0.85, 1)
+                addonTooltip:Show()
             end)
-            row.nameButton:SetScript("OnLeave", GameTooltip_Hide)
+            row.nameButton:SetScript("OnLeave", HideAddonTooltip)
             row.nameButton:SetScript("OnClick", function(self, button)
                 if button ~= "RightButton" or not self.inviteName or type(InvitePlayerByName) ~= "function" then
                     return
@@ -1623,13 +1626,13 @@ function KSM.RefreshRecentsTab(ctx)
                 if not self.playerName then
                     return
                 end
-                GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-                GameTooltip:AddLine(GetShortDisplayName(self.playerName), 1, 1, 1)
-                GameTooltip:AddLine("Right-click to invite", 0.75, 0.85, 1)
-                GameTooltip:AddLine("Shift+Right-click to remove", 0.75, 0.85, 1)
-                GameTooltip:Show()
+                addonTooltip:SetOwner(self, "ANCHOR_RIGHT")
+                addonTooltip:AddLine(GetShortDisplayName(self.playerName), 1, 1, 1)
+                addonTooltip:AddLine("Right-click to invite", 0.75, 0.85, 1)
+                addonTooltip:AddLine("Shift+Right-click to remove", 0.75, 0.85, 1)
+                addonTooltip:Show()
             end)
-            row.nameButton:SetScript("OnLeave", GameTooltip_Hide)
+            row.nameButton:SetScript("OnLeave", HideAddonTooltip)
             row.nameButton:SetScript("OnClick", function(self, button)
                 if button ~= "RightButton" or not self.playerName then
                     return
