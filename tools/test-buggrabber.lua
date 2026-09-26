@@ -136,4 +136,48 @@ chatState = 1; chat.SendOrQueueChatMessage("Stale", "PARTY")
 IsInGroup = function() return false end
 chatState = 0; table.remove(timers, 1)()
 check(#sent == 1 and #run.ui.deferredChatMessages == 0, "Party line sent after leaving group")
-print("PASS: full TOC startup, supported event registration, private tooltip, tracker isolation/restoration, unit death event routing, chat restriction deferral")
+-- Keystone announcements: completion upgrade, NPC swap via bag update, none -> key.
+IsInGroup = function() return true end
+chatState = 0
+for k in pairs(sent) do sent[k] = nil end
+local keyMap, keyLevel = 500, 10
+C_MythicPlus = {
+    GetOwnedKeystoneChallengeMapID = function() return keyMap end,
+    GetOwnedKeystoneLevel = function() return keyLevel end,
+    GetOwnedKeystoneLink = function() return keyMap and ("[Key " .. keyMap .. " +" .. keyLevel .. "]") or nil end,
+}
+local observe = run.ObserveOwnedKeystone
+local broadcasts = 0
+for j = 1, 200 do
+    local name = debug.getupvalue(observe, j)
+    if not name then break end
+    if name == "BroadcastOwnGuildSnapshot" then debug.setupvalue(observe, j, function() broadcasts = broadcasts + 1 end) end
+end
+local now = 100
+GetTime = function() return now end
+local function lastSent() return sent[#sent] end
+local life = setmetatable({ RefreshMythicUI = noop, SyncGroupDeathLogFromUnits = noop }, { __index = run })
+GetInstanceInfo = function() return nil, "none", 0 end
+run.ui.observedKeystoneSnapshot = nil
+observe(false) -- baseline
+KeyStoneMasteryNS.RunState.HandleChallengeLifecycleEvent(life, "CHALLENGE_MODE_START")
+keyLevel = 12 -- upgrade lands before the scheduled check
+KeyStoneMasteryNS.RunState.HandleChallengeLifecycleEvent(life, "CHALLENGE_MODE_COMPLETED")
+for _, t in ipairs(timers) do t() end
+for k in pairs(timers) do timers[k] = nil end
+check(#sent == 1 and lastSent():find("New key %[Key 500 %+12%]"), "Completion upgrade not announced")
+now = now + 120; keyMap = 501 -- NPC swap, seen only as a bag update
+observe(false)
+check(#sent == 2 and lastSent():find("%[Key 501 %+12%]"), "Post-run keystone swap not announced")
+keyMap, keyLevel = nil, nil; observe(false)
+check(#sent == 2, "Losing the key should not announce")
+keyMap, keyLevel = 502, 11; observe(false)
+check(#sent == 3 and lastSent():find("%[Key 502 %+11%]"), "Gaining a key from none not announced")
+now = now + 1000; keyMap = 503; observe(false)
+check(#sent == 3, "Announced a key change outside the post-run window")
+KeyStoneMasteryNS.RunState.HandleChallengeLifecycleEvent(life, "CHALLENGE_MODE_COMPLETED")
+KeyStoneMasteryNS.RunState.HandleChallengeLifecycleEvent(life, "CHALLENGE_MODE_START")
+keyMap = 504; observe(false)
+check(#sent == 3, "Announce window must close when a new key starts")
+for k in pairs(timers) do timers[k] = nil end
+print("PASS: full TOC startup, supported event registration, private tooltip, tracker isolation/restoration, unit death event routing, chat restriction deferral, keystone change announcements")

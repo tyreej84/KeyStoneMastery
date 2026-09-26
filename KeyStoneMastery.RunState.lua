@@ -13,6 +13,9 @@ local function RefreshMythicUIIfAvailable(ctx)
     end
 end
 
+-- Long enough to loot, swap at the NPC, and leave the instance.
+local KEYSTONE_ANNOUNCE_WINDOW_SECONDS = 900
+
 local function GetUpgradeLevels(state)
     if not state or type(state.elapsedSeconds) ~= "number" or type(state.maxTimeSeconds) ~= "number" then
         return nil
@@ -204,6 +207,7 @@ function RunState.HandleChallengeLifecycleEvent(ctx, event)
         ctx.ui.lastScenarioElapsedSeconds = 0
         ctx.ui.completedRun = nil
         ctx.ui.lastRunState = nil
+        ctx.ui.keystoneAnnounceUntil = nil
         ctx.ResetDeathLog()
         ctx.ResetEnemyForcesCalibration()
         ctx.ObserveOwnedKeystone(false)
@@ -217,6 +221,7 @@ function RunState.HandleChallengeLifecycleEvent(ctx, event)
         RunState.CaptureCompletedRunState(ctx)
         ctx.ui.inChallengeMode = false
         ctx.ui.lastScenarioElapsedSeconds = nil
+        ctx.ui.keystoneAnnounceUntil = GetTime() + KEYSTONE_ANNOUNCE_WINDOW_SECONDS
         RunState.ScheduleOwnedKeystoneObservation(ctx, true, 3)
         if C_Timer and C_Timer.After then
             C_Timer.After(2, function()

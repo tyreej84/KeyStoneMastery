@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.9] - 2026-09-26
+
+### Fixed
+- New keys are now announced to the party when swapped at the keystone NPC after a timed run. Previously the swap was never detected.
+- Keystone changes after a completed run (upgrade, downgrade, swap, or picking up a new key) are announced for 15 minutes after completion, instead of only on a single check 3 seconds after the run ended.
+- Picking up a key after having none is now announced.
+
+### Validation
+- Added mocked regressions for the completion upgrade, post-run swap, key gained from none, key lost, and changes outside the post-run window. Live announcements still require in-game verification.
+
 ## [2.0.8] - 2026-09-26
 
 ### Fixed

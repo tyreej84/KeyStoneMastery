@@ -1688,6 +1688,13 @@ local function AnnounceNewOwnedKeystone(mapID, keyLevel)
     SendOrQueueChatMessage(string.format("%s New key %s", REPLY_PREFIX, link), "PARTY")
 end
 
+-- After a key completes, the owned keystone can change well after the event:
+-- the upgrade/downgrade lands with a delay, and the post-run NPC swap only
+-- shows up as a bag update. Announce any change seen during this window.
+local function IsKeystoneAnnounceWindowOpen()
+    return type(ui.keystoneAnnounceUntil) == "number" and GetTime() <= ui.keystoneAnnounceUntil
+end
+
 local function ObserveOwnedKeystone(allowAnnounce)
     local mapID, keyLevel = GetOwnedKeystoneSnapshot()
     local currentSnapshotKey = KSMNS.BuildKeystoneSnapshotKey(mapID, keyLevel)
@@ -1704,11 +1711,12 @@ local function ObserveOwnedKeystone(allowAnnounce)
     local previousSnapshotKey = ui.observedKeystoneSnapshot
     ui.observedKeystoneSnapshot = currentSnapshotKey
 
-    if allowAnnounce ~= true then
+    if allowAnnounce ~= true and not IsKeystoneAnnounceWindowOpen() then
         return
     end
 
-    if previousSnapshotKey == "none" or currentSnapshotKey == "none" then
+    -- Losing the key is not news; gaining one (including from "none") is.
+    if currentSnapshotKey == "none" then
         BroadcastOwnGuildSnapshot()
         return
     end
@@ -5586,6 +5594,8 @@ frame:SetScript("OnEvent", function(_, event, ...)
     end
 
     if event == "BAG_UPDATE_DELAYED" then
+        -- Catches the post-run keystone swap, which changes only the bag item.
+        ObserveOwnedKeystone(false)
         PersistOwnGuildSnapshot()
         return
     end
