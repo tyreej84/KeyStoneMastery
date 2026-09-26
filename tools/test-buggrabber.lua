@@ -103,4 +103,37 @@ dead = secret; run.SyncGroupDeathLogFromUnits()
 check(run.ui.deathLog.Alice.count == 2, "Restricted death state was counted")
 dead = true; run.SyncGroupDeathLogFromUnits()
 check(run.ui.deathLog.Alice.count == 2, "Restricted state was mistaken for resurrection")
-print("PASS: full TOC startup, supported event registration, private tooltip, tracker isolation/restoration, unit death event routing")
+-- Chat restriction (e.g. right after a key ends) must queue, not call the blocked API.
+local sent = {}
+local chatState = 1
+Enum.AddOnRestrictionType = { Chat = 2 }
+Enum.AddOnRestrictionState = { Inactive = 0, Activating = 1, Active = 2 }
+C_RestrictedActions = { GetAddOnRestrictionState = function(kind) return kind == 2 and chatState or 0 end }
+IsInGroup = function() return true end
+local chat = findUpvalue(eventFrame.scripts.OnEvent, "BuildChatContext")()
+local trySend = findUpvalue(chat.SendOrQueueChatMessage, "TrySendChatMessage")
+check(trySend, "Cannot reach TrySendChatMessage")
+local patched = false
+for j = 1, 50 do
+    local name = debug.getupvalue(trySend, j)
+    if not name then break end
+    if name == "SendChatMessage" then
+        debug.setupvalue(trySend, j, function(m, c) sent[#sent+1] = c .. ":" .. m end)
+        patched = true
+    end
+end
+check(patched, "Cannot reach localized SendChatMessage")
+for k in pairs(timers) do timers[k] = nil end
+check(chat.SendOrQueueChatMessage("New key", "PARTY") == false, "Sent while chat restriction was Activating")
+check(#sent == 0 and #run.ui.deferredChatMessages == 1, "Restricted line was not queued")
+check(#timers == 1, "No retry scheduled for restricted chat")
+chatState = 2; table.remove(timers, 1)()
+check(#sent == 0 and #timers == 1, "Active restriction should keep queue and reschedule")
+chatState = 0; table.remove(timers, 1)()
+check(#sent == 1 and sent[1] == "PARTY:New key", "Queued line not sent after restriction lifted")
+check(#run.ui.deferredChatMessages == 0 and #timers == 0, "Queue not cleared after send")
+chatState = 1; chat.SendOrQueueChatMessage("Stale", "PARTY")
+IsInGroup = function() return false end
+chatState = 0; table.remove(timers, 1)()
+check(#sent == 1 and #run.ui.deferredChatMessages == 0, "Party line sent after leaving group")
+print("PASS: full TOC startup, supported event registration, private tooltip, tracker isolation/restoration, unit death event routing, chat restriction deferral")

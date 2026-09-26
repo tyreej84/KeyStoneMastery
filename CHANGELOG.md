@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.8] - 2026-09-26
+
+### Fixed
+- The new-keystone party announcement no longer fires while chat is restricted after a key ends. Chat lines now wait until the restriction lifts (including its activating phase), retry automatically, and are dropped if the group has disbanded.
+- Chat sends now use the current chat API instead of the deprecated wrapper.
+
+### Validation
+- Added a mocked regression for restricted, activating, lifted, and left-group chat states. Live chat delivery after a key still requires in-game verification.
+
 ## [2.0.7] - 2026-09-24
 
 ### Fixed

@@ -2,7 +2,8 @@ local addonName = ...
 local KSMNS = _G.KeyStoneMasteryNS or {}
 local addonTooltip = KSMNS.UIIsolation.GetTooltip()
 local HideAddonTooltip = KSMNS.UIIsolation.HideTooltip
-local SendChatMessage = SendChatMessage
+-- Prefer the C_ChatInfo API; the global is a deprecated wrapper in 12.x.
+local SendChatMessage = (C_ChatInfo and C_ChatInfo.SendChatMessage) or SendChatMessage
 
 local strtrim = strtrim or function(s) return (s:gsub("^%s*(.-)%s*$", "%1")) end
 local IsChallengeModeRunActive
@@ -281,16 +282,26 @@ local function IsCombatLockdownActive()
     return InCombatLockdown and InCombatLockdown() == true
 end
 
+-- Chat lockdown can outlast personal combat (keys and encounters). Treat any
+-- state other than Inactive, including Activating, as restricted.
+local function IsChatRestrictionActive()
+    if C_RestrictedActions and C_RestrictedActions.GetAddOnRestrictionState
+        and Enum and Enum.AddOnRestrictionType and Enum.AddOnRestrictionType.Chat
+        and Enum.AddOnRestrictionState then
+        return C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.Chat)
+            ~= Enum.AddOnRestrictionState.Inactive
+    end
+    return false
+end
+
 local function TrySendChatMessage(message, chatType)
+    if IsChatRestrictionActive() then
+        return false
+    end
     -- Call the localized SendChatMessage directly (no pcall) so errors surface
     -- in BugGrabber. Localized at load time to capture the secure reference.
     if type(SendChatMessage) == "function" then
         SendChatMessage(message, chatType)
-        return true
-    end
-    -- Fallback to C_ChatInfo variant.
-    if type(C_ChatInfo) == "table" and type(C_ChatInfo.SendChatMessage) == "function" then
-        C_ChatInfo.SendChatMessage(message, chatType)
         return true
     end
     return false
@@ -317,6 +328,28 @@ local function QueueDeferredChatMessage(message, chatType)
     })
 end
 
+local DEFERRED_CHAT_RETRY_SECONDS = 5
+local DEFERRED_CHAT_MAX_RETRIES = 60
+local FlushDeferredChatMessages
+
+-- PLAYER_REGEN_ENABLED does not fire when only the chat restriction lifts, so
+-- poll a bounded number of times while lines are waiting.
+local function ScheduleDeferredChatRetry()
+    if ui.deferredChatRetryPending or not (C_Timer and C_Timer.After) then
+        return
+    end
+    if (ui.deferredChatRetryCount or 0) >= DEFERRED_CHAT_MAX_RETRIES then
+        return
+    end
+
+    ui.deferredChatRetryPending = true
+    ui.deferredChatRetryCount = (ui.deferredChatRetryCount or 0) + 1
+    C_Timer.After(DEFERRED_CHAT_RETRY_SECONDS, function()
+        ui.deferredChatRetryPending = false
+        FlushDeferredChatMessages()
+    end)
+end
+
 local function SendOrQueueChatMessage(message, chatType)
     if IsCombatLockdownActive() then
         QueueDeferredChatMessage(message, chatType)
@@ -326,12 +359,14 @@ local function SendOrQueueChatMessage(message, chatType)
     local ok = TrySendChatMessage(message, chatType)
     if not ok then
         QueueDeferredChatMessage(message, chatType)
+        ui.deferredChatRetryCount = 0
+        ScheduleDeferredChatRetry()
     end
 
     return ok
 end
 
-local function FlushDeferredChatMessages()
+FlushDeferredChatMessages = function()
     if IsCombatLockdownActive() then
         return
     end
@@ -344,14 +379,20 @@ local function FlushDeferredChatMessages()
     local remaining = {}
     for _, entry in ipairs(queue) do
         if type(entry) == "table" and type(entry.message) == "string" and entry.message ~= "" and type(entry.chatType) == "string" and entry.chatType ~= "" then
-            local ok = TrySendChatMessage(entry.message, entry.chatType)
-            if not ok then
+            -- Drop group lines once the group is gone instead of erroring.
+            local groupGone = (entry.chatType == "PARTY" or entry.chatType == "RAID") and not IsInGroup()
+            if not groupGone and not TrySendChatMessage(entry.message, entry.chatType) then
                 table.insert(remaining, entry)
             end
         end
     end
 
     ui.deferredChatMessages = remaining
+    if #remaining > 0 then
+        ScheduleDeferredChatRetry()
+    else
+        ui.deferredChatRetryCount = 0
+    end
 end
 
 local function ResetDeathLog()

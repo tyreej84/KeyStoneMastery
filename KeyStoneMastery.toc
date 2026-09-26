@@ -2,7 +2,7 @@
 ## Title: KeyStoneMastery
 ## Notes: Auto-replies with your Mythic+ key, auto-slots matching keys, and shows a Mythic+ overlay UI.
 ## Author: Karnytine-Stormrage (joe@tyreenet.com)
-## Version: 2.0.7
+## Version: 2.0.8
 ## SavedVariables: KeyStoneMasteryDB
 ## IconTexture: Interface\\AddOns\\KeyStoneMastery\\Assets\\UI\\KeyStoneMastery_Icon.png
 
