@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.0] - 2026-09-26
+
+### Fixed
+- Starting a key soon after finishing another no longer announces the depleted keystone as a new key.
+- Party chat lines held back by chat restrictions are now dropped after 5 minutes instead of being posted much later, such as mid-run.
+
+### Validation
+- Added mocked regressions for start-of-run depletion inside the post-run window and for stale queued chat lines. Live behavior still requires in-game verification.
+
 ## [2.0.9] - 2026-09-26
 
 ### Fixed

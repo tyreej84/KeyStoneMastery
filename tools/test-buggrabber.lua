@@ -180,4 +180,18 @@ KeyStoneMasteryNS.RunState.HandleChallengeLifecycleEvent(life, "CHALLENGE_MODE_S
 keyMap = 504; observe(false)
 check(#sent == 3, "Announce window must close when a new key starts")
 for k in pairs(timers) do timers[k] = nil end
-print("PASS: full TOC startup, supported event registration, private tooltip, tracker isolation/restoration, unit death event routing, chat restriction deferral, keystone change announcements")
+-- Chaining keys: inserting the next key depletes it while the window is still open.
+KeyStoneMasteryNS.RunState.HandleChallengeLifecycleEvent(life, "CHALLENGE_MODE_COMPLETED")
+for k in pairs(timers) do timers[k] = nil end
+now = now + 60; keyMap, keyLevel = 505, 14; observe(false)
+check(#sent == 4 and lastSent():find("%[Key 505 %+14%]"), "Swap before chaining not announced")
+now = now + 60; keyLevel = 13; observe(false)
+check(#sent == 4, "Start-of-run depletion was announced as a new key")
+-- Queued lines expire instead of posting much later.
+chatState = 1
+chat.SendOrQueueChatMessage("Old news", "PARTY")
+for k in pairs(timers) do timers[k] = nil end
+now = now + 301; chatState = 0
+run.FlushDeferredChatMessages()
+check(#sent == 4 and #run.ui.deferredChatMessages == 0, "Stale queued chat line was posted")
+print("PASS: full TOC startup, supported event registration, private tooltip, tracker isolation/restoration, unit death event routing, chat restriction deferral, keystone change announcements, depletion and stale-chat suppression")

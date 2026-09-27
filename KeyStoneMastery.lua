@@ -325,11 +325,14 @@ local function QueueDeferredChatMessage(message, chatType)
     table.insert(queue, {
         message = message,
         chatType = chatType,
+        queuedAt = GetTime(),
     })
 end
 
 local DEFERRED_CHAT_RETRY_SECONDS = 5
 local DEFERRED_CHAT_MAX_RETRIES = 60
+-- Drop stale lines rather than posting them much later (e.g. mid-run).
+local DEFERRED_CHAT_MAX_AGE_SECONDS = DEFERRED_CHAT_RETRY_SECONDS * DEFERRED_CHAT_MAX_RETRIES
 local FlushDeferredChatMessages
 
 -- PLAYER_REGEN_ENABLED does not fire when only the chat restriction lifts, so
@@ -381,7 +384,8 @@ FlushDeferredChatMessages = function()
         if type(entry) == "table" and type(entry.message) == "string" and entry.message ~= "" and type(entry.chatType) == "string" and entry.chatType ~= "" then
             -- Drop group lines once the group is gone instead of erroring.
             local groupGone = (entry.chatType == "PARTY" or entry.chatType == "RAID") and not IsInGroup()
-            if not groupGone and not TrySendChatMessage(entry.message, entry.chatType) then
+            local expired = (GetTime() - (entry.queuedAt or GetTime())) > DEFERRED_CHAT_MAX_AGE_SECONDS
+            if not groupGone and not expired and not TrySendChatMessage(entry.message, entry.chatType) then
                 table.insert(remaining, entry)
             end
         end
@@ -1717,6 +1721,14 @@ local function ObserveOwnedKeystone(allowAnnounce)
 
     -- Losing the key is not news; gaining one (including from "none") is.
     if currentSnapshotKey == "none" then
+        BroadcastOwnGuildSnapshot()
+        return
+    end
+
+    -- Starting a key depletes it on the same dungeon. That can land while the
+    -- previous run's window is still open, and it is not a new key.
+    local previousMapID, previousLevel = previousSnapshotKey:match("^(%d+):(%d+)$")
+    if tonumber(previousMapID) == mapID and tonumber(previousLevel) and keyLevel < tonumber(previousLevel) then
         BroadcastOwnGuildSnapshot()
         return
     end
