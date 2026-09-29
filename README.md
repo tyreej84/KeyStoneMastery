@@ -99,16 +99,8 @@ World of Warcraft/_retail_/Interface/AddOns/
 
 ### Upgrading to the renamed addon (2.0.6)
 
-Close WoW completely, extract the release zip, then run the included Windows installer:
+Install KeyStoneMastery as a new addon. To keep your existing settings and key history, migrate them once, with WoW closed: copy each account's `SavedVariables\KeyMaster.lua` to `SavedVariables\KeyStoneMastery.lua` and change only its top-level `KeyMasterDB =` assignment to `KeyStoneMasteryDB =`. Keep a backup, remove the old `KeyMaster` addon folder from `Interface\AddOns`, install the new folder, and enable KeyStoneMastery at character selection. Do not run both addon folders together.
 
-```powershell
-.\Install-KeyStoneMastery.ps1 -WowRoot 'F:\Games\Blizzard\World of Warcraft\_retail_'
-```
-
-From a source checkout, use `tools\Install-KeyStoneMastery.ps1` instead. Adjust the client path for your installation.
-
-The one-time installer copies the renamed addon, migrates each account's database to `KeyStoneMastery.lua` / `KeyStoneMasteryDB`, preserves addon enablement, and moves the old addon outside `Interface\AddOns`. Backups are stored under `KeyStoneMastery-MigrationBackup` in the client directory. Existing legacy saved files are retained as recovery copies. It refuses to overwrite an existing renamed installation or database.
-
-For manual migration, with WoW closed, copy each account's `SavedVariables\KeyMaster.lua` to `SavedVariables\KeyStoneMastery.lua` and change only its top-level `KeyMasterDB =` assignment to `KeyStoneMasteryDB =`. Keep a backup, remove the old `KeyMaster` addon folder from `Interface\AddOns`, install the new folder, and enable KeyStoneMastery at character selection. Do not run both addon folders together.
+From a source checkout, `tools\Install-KeyStoneMastery.ps1 -WowRoot '<path to _retail_>'` performs the same migration automatically, with backups. It is not included in the release zip.
 
 The `/ksm` dashboard and `/km` shorthand remain available; the full help command is now `/keystonemastery`. Direct addon sync uses the renamed identifier, so both players need 2.0.6 or newer. Archived releases and backups preserve their original filenames and contents.

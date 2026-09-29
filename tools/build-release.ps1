@@ -47,9 +47,9 @@ Copy-Item (Join-Path $repo "Assets") (Join-Path $pkg "Assets") -Recurse -Force
 if (Test-Path $zip) {
     Remove-Item $zip -Force
 }
-$installer = Join-Path $releaseRoot "Install-KeyStoneMastery.ps1"
-Copy-Item -LiteralPath (Join-Path $PSScriptRoot "Install-KeyStoneMastery.ps1") -Destination $installer -Force
-Compress-Archive -Path $pkg, $installer -DestinationPath $zip -CompressionLevel Optimal -Force
+# CurseForge and Wago updaters extract the zip into Interface\AddOns, so it
+# must contain only the addon folder.
+Compress-Archive -Path $pkg -DestinationPath $zip -CompressionLevel Optimal -Force
 
 $copyToShelf = Join-Path (Split-Path -Parent $repo) "tools\copy-release-to-shelf.ps1"
 & $copyToShelf -AddonName "KeyStoneMastery" -Version $Version -ZipPath $zip
