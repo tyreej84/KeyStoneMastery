@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.1] - 2026-10-12
+
+### Changed
+- Updated for Retail 12.1.5 (`## Interface: 120105`). The Mythic+, scenario, chat, and timer APIs KeyStoneMastery uses are unchanged in 12.1.5. No behavior changes.
+
 ## [2.1.0] - 2026-09-26
 
 ### Fixed

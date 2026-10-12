@@ -6,7 +6,7 @@ KeyStoneMastery is a World of Warcraft Retail Mythic+ addon that does three thin
 2. Tracks your key and group/guild key data in a `/ksm` dashboard.
 3. Shows a live Mythic+ run overlay with timer/objectives/deaths/Enemy Forces.
 
-Target client/API: Retail 12.0.7 (compatible with 12.0.1+).
+Target client/API: Retail 12.1.5 (compatible with 12.0.1+).
 
 Repository: https://github.com/tyreej84/KeyStoneMastery
 
