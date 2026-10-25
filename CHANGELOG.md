@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.2] - 2026-10-25
+
+### Fixed
+- "New key" announcements now post the real, clickable keystone link. The keystone API can report the new key before the bag item is replaced, and the announcement then went out with a rebuilt link that chat shows as plain text. The announcement now waits up to 10 seconds for the new key to appear in your bags.
+- Keystone upgrades, downgrades and NPC swaps are announced at any time after a run until you start your next key. Previously only changes within 15 minutes of finishing were announced, so a later swap was silent.
+- Announcements held back by the chat restriction after a run are no longer dropped after 5 minutes. They post as soon as the restriction lifts (KeyStoneMastery now listens for `ADDON_RESTRICTION_STATE_CHANGED` and also retries after loading screens), and are cleared when the next key starts.
+
+### Validation
+- The regression test now reads the key from mocked bags instead of a keystone-link API that does not exist in the client. Added cases for the bag lagging behind the keystone API, a swap an hour after the run, and an announcement queued past 5 minutes and posted when the restriction lifts. Live behavior still requires in-game verification.
+
 ## [2.1.1] - 2026-10-12
 
 ### Changed

@@ -32,6 +32,7 @@ local RUNTIME_EVENTS = {
     "PLAYER_ENTERING_WORLD",
     "PLAYER_LOGOUT",
     "PLAYER_REGEN_ENABLED",
+    "ADDON_RESTRICTION_STATE_CHANGED",
     "CHALLENGE_MODE_START",
     "CHALLENGE_MODE_COMPLETED",
     "CHALLENGE_MODE_RESET",
@@ -307,7 +308,7 @@ local function TrySendChatMessage(message, chatType)
     return false
 end
 
-local function QueueDeferredChatMessage(message, chatType)
+local function QueueDeferredChatMessage(message, chatType, keepUntilRunStart)
     if type(message) ~= "string" or message == "" or type(chatType) ~= "string" or chatType == "" then
         return
     end
@@ -326,6 +327,7 @@ local function QueueDeferredChatMessage(message, chatType)
         message = message,
         chatType = chatType,
         queuedAt = GetTime(),
+        keepUntilRunStart = keepUntilRunStart == true,
     })
 end
 
@@ -353,15 +355,17 @@ local function ScheduleDeferredChatRetry()
     end)
 end
 
-local function SendOrQueueChatMessage(message, chatType)
+-- keepUntilRunStart lines (key announcements) skip the age limit; the queue is
+-- cleared when the next key starts instead.
+local function SendOrQueueChatMessage(message, chatType, keepUntilRunStart)
     if IsCombatLockdownActive() then
-        QueueDeferredChatMessage(message, chatType)
+        QueueDeferredChatMessage(message, chatType, keepUntilRunStart)
         return false
     end
 
     local ok = TrySendChatMessage(message, chatType)
     if not ok then
-        QueueDeferredChatMessage(message, chatType)
+        QueueDeferredChatMessage(message, chatType, keepUntilRunStart)
         ui.deferredChatRetryCount = 0
         ScheduleDeferredChatRetry()
     end
@@ -384,7 +388,8 @@ FlushDeferredChatMessages = function()
         if type(entry) == "table" and type(entry.message) == "string" and entry.message ~= "" and type(entry.chatType) == "string" and entry.chatType ~= "" then
             -- Drop group lines once the group is gone instead of erroring.
             local groupGone = (entry.chatType == "PARTY" or entry.chatType == "RAID") and not IsInGroup()
-            local expired = (GetTime() - (entry.queuedAt or GetTime())) > DEFERRED_CHAT_MAX_AGE_SECONDS
+            local expired = not entry.keepUntilRunStart
+                and (GetTime() - (entry.queuedAt or GetTime())) > DEFERRED_CHAT_MAX_AGE_SECONDS
             if not groupGone and not expired and not TrySendChatMessage(entry.message, entry.chatType) then
                 table.insert(remaining, entry)
             end
@@ -1660,12 +1665,39 @@ local function GetOwnedKeystoneSnapshot()
 end
 
 
-local function AnnounceNewOwnedKeystone(mapID, keyLevel)
+-- The keystone API can report the new key before the bag item is replaced.
+-- Only the real bag link posts as a clickable link, so wait for it briefly.
+local KEYSTONE_LINK_RETRY_SECONDS = 1
+local KEYSTONE_LINK_MAX_RETRIES = 10
+
+local function GetMatchingBagKeystoneLink(mapID, keyLevel)
+    local _, _, bagLink = FindKeystoneBagSlot()
+    local linkMapID, linkLevel = KSMNS.ParseKeystoneFromMessage(bagLink)
+    if linkMapID == mapID and linkLevel == keyLevel then
+        return bagLink
+    end
+    return nil
+end
+
+local function AnnounceNewOwnedKeystone(mapID, keyLevel, attempt)
     if not IsInGroup() then
         return
     end
 
-    local link = GetOwnedKeystoneLink()
+    -- A later change replaces this announcement.
+    if ui.observedKeystoneSnapshot ~= KSMNS.BuildKeystoneSnapshotKey(mapID, keyLevel) then
+        return
+    end
+
+    local link = GetMatchingBagKeystoneLink(mapID, keyLevel)
+    attempt = attempt or 0
+    if not link and attempt < KEYSTONE_LINK_MAX_RETRIES and C_Timer and C_Timer.After then
+        C_Timer.After(KEYSTONE_LINK_RETRY_SECONDS, function()
+            AnnounceNewOwnedKeystone(mapID, keyLevel, attempt + 1)
+        end)
+        return
+    end
+
     if not link and mapID and keyLevel then
         local mapName = GetKeystoneMapName(mapID)
         if mapName and mapName ~= "" then
@@ -1689,14 +1721,14 @@ local function AnnounceNewOwnedKeystone(mapID, keyLevel)
         return
     end
 
-    SendOrQueueChatMessage(string.format("%s New key %s", REPLY_PREFIX, link), "PARTY")
+    SendOrQueueChatMessage(string.format("%s New key %s", REPLY_PREFIX, link), "PARTY", true)
 end
 
 -- After a key completes, the owned keystone can change well after the event:
 -- the upgrade/downgrade lands with a delay, and the post-run NPC swap only
--- shows up as a bag update. Announce any change seen during this window.
+-- shows up as a bag update. The window stays open until the next key starts.
 local function IsKeystoneAnnounceWindowOpen()
-    return type(ui.keystoneAnnounceUntil) == "number" and GetTime() <= ui.keystoneAnnounceUntil
+    return ui.keystoneAnnounceOpen == true
 end
 
 local function ObserveOwnedKeystone(allowAnnounce)
@@ -5603,6 +5635,17 @@ frame:SetScript("OnEvent", function(_, event, ...)
         end
         -- Do not return here: RunState refresh handler also needs PLAYER_ENTERING_WORLD
         -- so the UI can recover on zone transitions during active runs.
+    end
+
+    if event == "ADDON_RESTRICTION_STATE_CHANGED" then
+        -- Post queued lines as soon as the chat restriction lifts.
+        local restrictionType = ...
+        if Enum and Enum.AddOnRestrictionType and restrictionType == Enum.AddOnRestrictionType.Chat
+            and not IsChatRestrictionActive() then
+            ui.deferredChatRetryCount = 0
+            FlushDeferredChatMessages()
+        end
+        return
     end
 
     if event == "BAG_UPDATE_DELAYED" then

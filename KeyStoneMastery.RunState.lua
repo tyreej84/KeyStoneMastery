@@ -13,9 +13,6 @@ local function RefreshMythicUIIfAvailable(ctx)
     end
 end
 
--- Long enough to loot, swap at the NPC, and leave the instance.
-local KEYSTONE_ANNOUNCE_WINDOW_SECONDS = 900
-
 local function GetUpgradeLevels(state)
     if not state or type(state.elapsedSeconds) ~= "number" or type(state.maxTimeSeconds) ~= "number" then
         return nil
@@ -207,7 +204,9 @@ function RunState.HandleChallengeLifecycleEvent(ctx, event)
         ctx.ui.lastScenarioElapsedSeconds = 0
         ctx.ui.completedRun = nil
         ctx.ui.lastRunState = nil
-        ctx.ui.keystoneAnnounceUntil = nil
+        ctx.ui.keystoneAnnounceOpen = false
+        -- Anything still queued from before this key is stale now.
+        ctx.ui.deferredChatMessages = {}
         ctx.ResetDeathLog()
         ctx.ResetEnemyForcesCalibration()
         ctx.ObserveOwnedKeystone(false)
@@ -221,7 +220,7 @@ function RunState.HandleChallengeLifecycleEvent(ctx, event)
         RunState.CaptureCompletedRunState(ctx)
         ctx.ui.inChallengeMode = false
         ctx.ui.lastScenarioElapsedSeconds = nil
-        ctx.ui.keystoneAnnounceUntil = GetTime() + KEYSTONE_ANNOUNCE_WINDOW_SECONDS
+        ctx.ui.keystoneAnnounceOpen = true
         RunState.ScheduleOwnedKeystoneObservation(ctx, true, 3)
         if C_Timer and C_Timer.After then
             C_Timer.After(2, function()
@@ -295,7 +294,7 @@ function RunState.HandleRunRefreshEvent(ctx, event)
     if event == "PLAYER_ENTERING_WORLD" then
         RunState.ScheduleOwnedKeystoneObservation(ctx, false, 1)
     end
-    if event == "PLAYER_REGEN_ENABLED" then
+    if event == "PLAYER_REGEN_ENABLED" or event == "PLAYER_ENTERING_WORLD" then
         ctx.FlushDeferredChatMessages()
     end
 

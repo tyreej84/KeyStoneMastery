@@ -141,10 +141,19 @@ IsInGroup = function() return true end
 chatState = 0
 for k in pairs(sent) do sent[k] = nil end
 local keyMap, keyLevel = 500, 10
+-- The bag item is the only source of a real link; it can lag the keystone API.
+local bagMap, bagLevel = keyMap, keyLevel
+local function setKey(m, l) keyMap, keyLevel, bagMap, bagLevel = m, l, m, l end
 C_MythicPlus = {
     GetOwnedKeystoneChallengeMapID = function() return keyMap end,
     GetOwnedKeystoneLevel = function() return keyLevel end,
-    GetOwnedKeystoneLink = function() return keyMap and ("[Key " .. keyMap .. " +" .. keyLevel .. "]") or nil end,
+}
+C_Container = {
+    GetContainerNumSlots = function(bag) return bag == 0 and 1 or 0 end,
+    GetContainerItemID = function() return bagMap and 180653 or nil end,
+    GetContainerItemLink = function()
+        return bagMap and ("|cnIQ4:|Hkeystone:180653:%d:%d:9:10:0:0|h[Keystone: X (%d)]|h|r"):format(bagMap, bagLevel, bagLevel) or nil
+    end,
 }
 local observe = run.ObserveOwnedKeystone
 local broadcasts = 0
@@ -156,42 +165,74 @@ end
 local now = 100
 GetTime = function() return now end
 local function lastSent() return sent[#sent] end
+local function announced(m, l)
+    return lastSent():find(("New key |cnIQ4:|Hkeystone:180653:%d:%d:"):format(m, l), 1, true) ~= nil
+end
+local function runTimers()
+    local pending = { (table.unpack or unpack)(timers) }
+    for k in pairs(timers) do timers[k] = nil end
+    for _, t in ipairs(pending) do t() end
+end
 local life = setmetatable({ RefreshMythicUI = noop, SyncGroupDeathLogFromUnits = noop }, { __index = run })
 GetInstanceInfo = function() return nil, "none", 0 end
 run.ui.observedKeystoneSnapshot = nil
 observe(false) -- baseline
 KeyStoneMasteryNS.RunState.HandleChallengeLifecycleEvent(life, "CHALLENGE_MODE_START")
-keyLevel = 12 -- upgrade lands before the scheduled check
+setKey(500, 12) -- upgrade lands before the scheduled check
 KeyStoneMasteryNS.RunState.HandleChallengeLifecycleEvent(life, "CHALLENGE_MODE_COMPLETED")
-for _, t in ipairs(timers) do t() end
-for k in pairs(timers) do timers[k] = nil end
-check(#sent == 1 and lastSent():find("New key %[Key 500 %+12%]"), "Completion upgrade not announced")
-now = now + 120; keyMap = 501 -- NPC swap, seen only as a bag update
+runTimers()
+check(#sent == 1 and announced(500, 12), "Completion upgrade not announced")
+now = now + 120; setKey(501, 12) -- NPC swap, seen only as a bag update
 observe(false)
-check(#sent == 2 and lastSent():find("%[Key 501 %+12%]"), "Post-run keystone swap not announced")
-keyMap, keyLevel = nil, nil; observe(false)
+check(#sent == 2 and announced(501, 12), "Post-run keystone swap not announced")
+setKey(nil, nil); observe(false)
 check(#sent == 2, "Losing the key should not announce")
-keyMap, keyLevel = 502, 11; observe(false)
-check(#sent == 3 and lastSent():find("%[Key 502 %+11%]"), "Gaining a key from none not announced")
-now = now + 1000; keyMap = 503; observe(false)
-check(#sent == 3, "Announced a key change outside the post-run window")
-KeyStoneMasteryNS.RunState.HandleChallengeLifecycleEvent(life, "CHALLENGE_MODE_COMPLETED")
+setKey(502, 11); observe(false)
+check(#sent == 3 and announced(502, 11), "Gaining a key from none not announced")
+-- The API reports the new key before the bag item is replaced: wait for the
+-- real link instead of posting the plain-text fallback.
+keyMap, keyLevel, bagMap, bagLevel = 503, 13, nil, nil
+observe(false)
+check(#sent == 3 and #timers == 1, "Announced before the bag held the new key")
+runTimers()
+check(#sent == 3 and #timers == 1, "Kept retrying should still wait for the bag")
+bagMap, bagLevel = 503, 13; runTimers()
+check(#sent == 4 and announced(503, 13) and #timers == 0, "Real bag link not announced once it arrived")
+-- An NPC swap long after the key (no time limit until the next key starts).
+now = now + 3600; setKey(504, 13); observe(false)
+check(#sent == 5 and announced(504, 13), "Late post-run swap not announced")
 KeyStoneMasteryNS.RunState.HandleChallengeLifecycleEvent(life, "CHALLENGE_MODE_START")
-keyMap = 504; observe(false)
-check(#sent == 3, "Announce window must close when a new key starts")
+setKey(505, 13); observe(false)
+check(#sent == 5, "Announce window must close when a new key starts")
 for k in pairs(timers) do timers[k] = nil end
 -- Chaining keys: inserting the next key depletes it while the window is still open.
 KeyStoneMasteryNS.RunState.HandleChallengeLifecycleEvent(life, "CHALLENGE_MODE_COMPLETED")
 for k in pairs(timers) do timers[k] = nil end
-now = now + 60; keyMap, keyLevel = 505, 14; observe(false)
-check(#sent == 4 and lastSent():find("%[Key 505 %+14%]"), "Swap before chaining not announced")
-now = now + 60; keyLevel = 13; observe(false)
-check(#sent == 4, "Start-of-run depletion was announced as a new key")
+now = now + 60; setKey(506, 14); observe(false)
+check(#sent == 6 and announced(506, 14), "Swap before chaining not announced")
+now = now + 60; setKey(506, 13); observe(false)
+check(#sent == 6, "Start-of-run depletion was announced as a new key")
 -- Queued lines expire instead of posting much later.
 chatState = 1
 chat.SendOrQueueChatMessage("Old news", "PARTY")
 for k in pairs(timers) do timers[k] = nil end
 now = now + 301; chatState = 0
 run.FlushDeferredChatMessages()
-check(#sent == 4 and #run.ui.deferredChatMessages == 0, "Stale queued chat line was posted")
-print("PASS: full TOC startup, supported event registration, private tooltip, tracker isolation/restoration, unit death event routing, chat restriction deferral, keystone change announcements, depletion and stale-chat suppression")
+check(#sent == 6 and #run.ui.deferredChatMessages == 0, "Stale queued chat line was posted")
+-- A key announcement made while chat stays restricted in the instance is kept
+-- past the age limit and posted when the restriction-change event fires.
+KeyStoneMasteryNS.RunState.HandleChallengeLifecycleEvent(life, "CHALLENGE_MODE_COMPLETED")
+for k in pairs(timers) do timers[k] = nil end
+chatState = 2; setKey(507, 15); observe(false)
+check(#sent == 6 and #run.ui.deferredChatMessages == 1, "Restricted announcement not queued")
+for k in pairs(timers) do timers[k] = nil end
+now = now + 900; chatState = 0
+eventFrame.scripts.OnEvent(eventFrame, "ADDON_RESTRICTION_STATE_CHANGED", Enum.AddOnRestrictionType.Chat, Enum.AddOnRestrictionState.Inactive)
+check(#sent == 7 and announced(507, 15), "Queued announcement not posted when the restriction lifted")
+check(eventFrame.events.ADDON_RESTRICTION_STATE_CHANGED, "Restriction-change event not registered")
+-- Starting the next key drops anything still queued.
+chatState = 2; setKey(508, 15); observe(false)
+KeyStoneMasteryNS.RunState.HandleChallengeLifecycleEvent(life, "CHALLENGE_MODE_START")
+check(#run.ui.deferredChatMessages == 0, "Queued announcement survived the next key start")
+chatState = 0
+print("PASS: full TOC startup, supported event registration, private tooltip, tracker isolation/restoration, unit death event routing, chat restriction deferral, keystone change announcements with real bag links, late NPC swaps, depletion and stale-chat suppression, queued announcements through restriction changes")
